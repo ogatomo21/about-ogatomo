@@ -1,0 +1,46 @@
+name: Sync to Public Repo
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    sync:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+
+        steps:
+            - name: Checkout main repository
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "18"
+
+            - name: Install html-minifier
+              run: npm install -g html-minifier
+
+            - name: Minify HTML files
+              run: |
+                  find . -name "*.html" -exec html-minifier --collapse-whitespace --remove-comments --minify-css true --minify-js true -o {} {} \;
+
+            - name: Checkout public repository
+              uses: actions/checkout@v4
+              with:
+                  repository: ogatomo21/about-ogatomo
+                  path: public
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  ref: public
+
+            - name: Sync files to public repository
+              run: |
+                  rsync -av --delete --exclude .git --exclude .github ./ ./public/
+                  cd public
+                  git config user.name "github-actions"
+                  git config user.email "github-actions@github.com"
+                  git add .
+                  git commit -m "Sync from main repo" || echo "No changes to commit"
+                  git push origin public
