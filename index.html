@@ -119,15 +119,20 @@
 
         nav {
             display: flex;
-            flex-wrap: wrap;
+            overflow-x: auto;
             align-items: center;
             min-height: 2rem;
-            padding-left: 1rem;
+            padding: 0.15rem 0 0.15rem 1rem;
             background-color: #435071;
-
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-
+        nav::-webkit-scrollbar {
+            display: none;
+        }
+        
         nav a {
+            flex-shrink: 0;
             line-height:2;
             margin-right: 1rem;
             color: #FFF;
@@ -199,6 +204,9 @@
         }
         #works-list>li>p{
             margin-top: 1rem;
+        }
+        #works-list>li>a{
+            line-height:2.2;
         }
         .type{
             background-color: #333333;
