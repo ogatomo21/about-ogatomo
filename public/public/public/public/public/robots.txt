@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /LICENSE
+Disallow: /README.md
+Allow: /
+
+Sitemap: https://about.ogatomo.net/sitemap.xml
