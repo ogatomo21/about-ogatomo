@@ -1,0 +1,27 @@
+{
+  "name": "about-ogatomo",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Tomoya Ogawa (小川 智也) portfolio site — about.ogatomo.net",
+  "scripts": {
+    "images": "node scripts/optimize-images.mjs",
+    "inject": "node scripts/inject-data.mjs",
+    "prebuild": "npm run images && npm run inject",
+    "build": "vite build",
+    "predev": "npm run images && npm run inject",
+    "dev": "vite",
+    "preview": "vite preview",
+    "clean": "node -e \"const fs=require('fs');const path=require('path');const root=process.cwd();['dist','.tmp'].forEach(d=>{try{fs.rmSync(path.join(root,d),{recursive:true,force:true})}catch(e){}})\""
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "sharp": "^0.35.3",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.4.3"
+  },
+  "type": "module"
+}

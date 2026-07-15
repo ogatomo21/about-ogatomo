@@ -1,0 +1,90 @@
+[
+  {
+    "category": { "ja": "Web", "en": "Web" },
+    "items": [
+      "JavaScript",
+      "TypeScript",
+      "HTML",
+      "CSS",
+      "PHP",
+      "WordPress",
+      "REST API",
+      "Bulma",
+      "Tailwind CSS",
+      { "ja": "静的サイト", "en": "Static sites" }
+    ]
+  },
+  {
+    "category": { "ja": "アプリ", "en": "Apps" },
+    "items": [
+      "Android (Kotlin)",
+      { "ja": "Chrome拡張機能", "en": "Chrome extensions" },
+      { "ja": "Webアプリ", "en": "Web apps" },
+      "GUI (Python)",
+      "GUI (.NET)"
+    ]
+  },
+  {
+    "category": { "ja": "言語・ツール", "en": "Languages & Tools" },
+    "items": [
+      "Python",
+      "Kotlin",
+      "Git / GitHub",
+      "VSCode",
+      "Zed",
+      "Vim",
+      "Bash"
+    ]
+  },
+  {
+    "category": { "ja": "インフラ・ネットワーク", "en": "Infrastructure & Networking" },
+    "items": [
+      { "ja": "自宅サーバー", "en": "Home server" },
+      "Linux",
+      "Tailscale",
+      "NEC UNIVERGE",
+      "DNS",
+      { "ja": "ドメイン管理", "en": "Domain management" },
+      "XServer",
+      "Cloudflare",
+      "GitHub Pages"
+    ]
+  },
+  {
+    "category": { "ja": "AI", "en": "AI" },
+    "items": [
+      "Vibe Coding",
+      { "ja": "プロンプト作成", "en": "Prompt engineering" }
+    ]
+  },
+  {
+    "category": { "ja": "コンテンツ・事業", "en": "Content & Business" },
+    "items": [
+      { "ja": "技術記事執筆", "en": "Technical writing" },
+      { "ja": "ガジェットレビュー", "en": "Gadget reviews" },
+      { "ja": "ブログ運営", "en": "Blog management" },
+      { "ja": "個人事業", "en": "Sole proprietorship" }
+    ]
+  },
+  {
+    "category": { "ja": "ネタ", "en": "Fun Extras" },
+    "items": [
+      {
+        "ja": "外見や色でスマホの機種をある程度当てる",
+        "en": "Can roughly guess phone models just from their appearance and color"
+      },
+      {
+        "ja": "スマホ乗り換えプランの最適解提示",
+        "en": "Good at recommending the best phone plan switches"
+      },
+      {
+        "ja": "トルクスネジを舐める",
+        "en": "Expert at stripping Torx screws"
+      },
+      {
+        "ja": "iPhoneのディスプレイケーブルを千切る",
+        "en": "Specialist in tearing iPhone display cables"
+      }
+    ]
+  }
+]

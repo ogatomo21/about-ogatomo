@@ -1,0 +1,974 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens (RGB channels for Tailwind alpha support).
+ * html.dark swaps values — prefer token classes over hard-coded white/black.
+ */
+:root {
+  color-scheme: light;
+  --c-primary: 112 134 189; /* #7086BD */
+  --c-secondary: 67 80 113; /* #435071 — muted text / accents */
+  --c-tertiary: 226 230 241; /* #E2E6F1 — borders, chips, alt sections */
+  --c-text: 51 51 51; /* #333333 */
+  --c-surface: 255 255 255; /* cards / elevated */
+  --c-page: 255 255 255;
+  --c-panel: 67 80 113; /* solid navy (CTA) */
+  --c-danger: 235 35 35;
+  --c-light: 35 122 235;
+  --c-green: 40 184 74;
+  --c-border: 214 220 232; /* card edges (slightly softer than tertiary) */
+  --shadow-card: 0 4px 20px rgba(67, 80, 113, 0.08);
+  --shadow-card-hover: 0 10px 28px rgba(67, 80, 113, 0.14);
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --glass-btn-bg: rgba(255, 255, 255, 0.72);
+  --glass-btn-border: rgba(226, 230, 241, 0.9);
+  --theme-dot: 67 80 113;
+  --theme-dot-active: 112 134 189;
+}
+
+/*
+ * Dark layering (dark → light): page < alt-section < surface/card < chip/border
+ * Cards must sit ABOVE section backgrounds so they don't look sunken.
+ */
+html.dark {
+  color-scheme: dark;
+  --c-primary: 138 159 212;
+  --c-secondary: 168 176 196;
+  --c-tertiary: 48 54 72; /* chips + alt section tint */
+  --c-text: 232 234 240;
+  --c-surface: 34 38 54; /* elevated cards (lighter than page) */
+  --c-page: 15 17 24;
+  --c-panel: 52 60 84;
+  --c-light: 96 165 250;
+  --c-green: 74 222 128;
+  --c-border: 58 66 88;
+  --shadow-card: 0 4px 22px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --glass-bg: rgba(34, 38, 54, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-btn-bg: rgba(34, 38, 54, 0.82);
+  --glass-btn-border: rgba(255, 255, 255, 0.12);
+  --theme-dot: 168 176 196;
+  --theme-dot-active: 138 159 212;
+}
+
+/* Theme / language motion (disabled under prefers-reduced-motion below) */
+html.theme-switching body,
+html.theme-switching .site-header-inner,
+html.theme-switching .content-card,
+html.theme-switching .content-card--link,
+html.theme-switching .lang-menu-panel,
+html.theme-switching .theme-switch,
+html.theme-switching .btn-primary,
+html.theme-switching .skill-chip,
+html.theme-switching footer {
+  transition:
+    background-color 0.24s ease,
+    color 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.24s ease;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.28s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-page font-sans text-text antialiased;
+    /* edge-to-edge with viewport-fit=cover (notch / home indicator) */
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+}
+
+@layer components {
+  /*
+   * Full-bleed hero to the physical bottom (incl. iOS gesture bar area).
+   * 100lvh ≈ largest viewport; 100dvh tracks dynamic toolbar.
+   * Prefer lvh then override with dvh where supported for "fills screen now".
+   */
+  .hero-viewport {
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+    /* cascade: classic → iOS fill → large → dynamic (gesture-bar bottom) */
+    min-height: 100vh;
+    height: 100vh;
+    min-height: -webkit-fill-available;
+    height: -webkit-fill-available;
+    min-height: 100lvh;
+    height: 100lvh;
+    min-height: 100dvh;
+    height: 100dvh;
+  }
+
+  /* Full-bleed photo via <picture> (only one of avif/webp/jpg is requested) */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  .hero-bg img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .hero-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(rgba(67, 80, 113, 0.72), rgba(67, 80, 113, 0.78));
+  }
+
+  /* Keep "もっと見る" above the home indicator while hero bg still fills */
+  .hero-more {
+    z-index: 2;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  /*
+   * Scroll-reveal frosted-glass header.
+   * Brand left · mobile hamburger / desktop nav+tools
+   * Mobile open: glass shell itself grows downward (same blur as closed header).
+   */
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    padding-top: max(0.75rem, env(safe-area-inset-top, 0px));
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
+    padding-bottom: 0.5rem;
+    transform: translateY(-120%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      transform 0.28s ease,
+      opacity 0.28s ease,
+      visibility 0.28s ease;
+  }
+
+  .site-header.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /*
+   * Single glass shell for bar + menu.
+   * Open state only changes shape/padding — no second frosted layer.
+   */
+  .site-header-inner {
+    @apply relative mx-auto flex w-full max-w-content flex-col;
+    z-index: 70;
+    padding: 0.35rem 0.45rem 0.35rem 0.85rem;
+    /*
+     * Fixed radius on mobile (open + closed).
+     * Animating 9999px ↔ smaller while height grows makes a blob mid-frame.
+     * ~1.5rem still reads as a soft pill at bar height.
+     */
+    border-radius: 1.5rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(18px) saturate(1.35);
+    -webkit-backdrop-filter: blur(18px) saturate(1.35);
+    /* Clip during grow so nav feels like the pill stretching down */
+    overflow: hidden;
+    transition:
+      padding 0.36s cubic-bezier(0.22, 1.05, 0.36, 1),
+      box-shadow 0.28s ease;
+  }
+
+  .site-header-inner.is-menu-open {
+    padding: 0.4rem 0.55rem 0.7rem 0.85rem;
+    /* Clip while expanding; lang panel uses :has() below to escape */
+    overflow: hidden;
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* Language popup must not be clipped by the glass shell on mobile */
+  .site-header-inner.is-menu-open:has(.lang-menu.is-open) {
+    overflow: visible;
+  }
+
+  .site-header-inner.is-menu-open:has(.lang-menu.is-open) .header-menu-body {
+    overflow: visible;
+  }
+
+  .site-header-bar {
+    @apply flex w-full items-center justify-between gap-2;
+    min-height: 2.5rem;
+  }
+
+  .site-brand {
+    @apply shrink-0 truncate text-sm font-bold tracking-tight text-secondary no-underline transition hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:text-base;
+    max-width: min(11rem, 52vw);
+  }
+
+  .header-menu-btn {
+    @apply relative z-[1] inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+    color: rgb(var(--theme-dot) / 0.95);
+    background: var(--glass-btn-bg);
+    border: 1px solid var(--glass-btn-border);
+  }
+
+  .header-menu-btn:hover {
+    color: rgb(var(--c-text) / 1);
+    background: rgb(var(--c-tertiary) / 0.65);
+  }
+
+  .header-menu-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .header-menu-icon--close {
+    display: none;
+  }
+
+  .site-header-inner.is-menu-open .header-menu-icon--open {
+    display: none;
+  }
+
+  .site-header-inner.is-menu-open .header-menu-icon--close {
+    display: block;
+  }
+
+  /*
+   * Menu lives inside the same glass shell — max-height grows the shell down.
+   * No own background / blur (header-level frosted glass only).
+   */
+  .header-menu-body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    margin: 0;
+    padding: 0 0.1rem;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition:
+      max-height 0.42s cubic-bezier(0.22, 1.08, 0.36, 1),
+      opacity 0.28s ease,
+      visibility 0.4s,
+      gap 0.3s ease,
+      margin 0.36s cubic-bezier(0.22, 1.08, 0.36, 1),
+      padding 0.36s cubic-bezier(0.22, 1.08, 0.36, 1),
+      border-color 0.28s ease;
+  }
+
+  .site-header-inner.is-menu-open .header-menu-body {
+    max-height: min(72vh, 28rem);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    overflow: hidden;
+    gap: 0.9rem;
+    margin-top: 0.35rem;
+    padding: 0.6rem 0.1rem 0.15rem;
+    border-top: 1px solid rgb(var(--c-border) / 0.4);
+  }
+
+  body.header-menu-open {
+    overflow: hidden;
+  }
+
+  .site-header-nav {
+    @apply flex min-w-0 flex-col items-stretch gap-2;
+  }
+
+  .site-nav-btn {
+    @apply inline-flex w-full items-center justify-center rounded-full px-4 py-3 text-base font-semibold text-secondary transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+    background: var(--glass-btn-bg);
+    border: 1px solid var(--glass-btn-border);
+  }
+
+  .site-nav-btn:hover {
+    @apply text-primary;
+    border-color: rgb(var(--c-primary) / 0.55);
+    background: rgb(var(--c-tertiary) / 0.55);
+  }
+
+  /* Higher specificity so desktop .site-nav-btn bg never overrides primary CTA */
+  .site-nav-btn.site-nav-btn--primary {
+    background: rgb(var(--c-primary) / 1);
+    border-color: rgb(var(--c-primary) / 1);
+    color: #fff;
+  }
+
+  .site-nav-btn.site-nav-btn--primary:hover {
+    background: rgb(var(--c-panel) / 1);
+    border-color: rgb(var(--c-panel) / 1);
+    color: #fff;
+  }
+
+  .header-tools {
+    @apply flex shrink-0 flex-wrap items-center justify-center gap-3 pt-1;
+  }
+
+  @media (min-width: 768px) {
+    .site-header-inner {
+      @apply flex-row items-center gap-3;
+      padding: 0.4rem 0.5rem 0.4rem 1rem;
+      border-radius: 9999px;
+      overflow: visible;
+    }
+
+    .site-header-inner.is-menu-open {
+      padding: 0.4rem 0.5rem 0.4rem 1rem;
+      overflow: visible;
+      box-shadow: var(--shadow-card);
+    }
+
+    .site-header-bar {
+      @apply w-auto shrink-0;
+      min-height: 0;
+    }
+
+    .site-brand {
+      max-width: none;
+    }
+
+    .header-menu-btn {
+      display: none;
+    }
+
+    .header-menu-body,
+    .site-header-inner.is-menu-open .header-menu-body {
+      display: flex;
+      position: static;
+      width: auto;
+      max-height: none;
+      flex: 1;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0;
+      margin: 0;
+      border: 0;
+      overflow: visible;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: none;
+      transition: none;
+    }
+
+    .site-header-nav {
+      @apply flex-row flex-wrap items-center gap-2;
+    }
+
+    .site-nav-btn {
+      @apply w-auto px-5 py-2.5 text-sm;
+      background: var(--glass-btn-bg);
+      border: 1px solid var(--glass-btn-border);
+    }
+
+    .site-nav-btn.site-nav-btn--primary {
+      background: rgb(var(--c-primary) / 1);
+      border-color: rgb(var(--c-primary) / 1);
+      color: #fff;
+    }
+
+    .site-nav-btn.site-nav-btn--primary:hover {
+      background: rgb(var(--c-panel) / 1);
+      border-color: rgb(var(--c-panel) / 1);
+      color: #fff;
+    }
+
+    .header-tools {
+      @apply gap-2 pt-0;
+    }
+
+    body.header-menu-open {
+      overflow: auto;
+    }
+  }
+
+  /* Language: globe icon → dropdown (日本語 / English), left of theme */
+  .lang-menu {
+    @apply relative shrink-0;
+  }
+
+  .lang-menu.is-open {
+    z-index: 80;
+  }
+
+  .lang-menu-trigger {
+    @apply inline-flex h-8 w-8 items-center justify-center rounded-full transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+    color: rgb(var(--theme-dot) / 0.9);
+    background: rgb(var(--c-tertiary) / 0.45);
+    border: 1px solid var(--glass-btn-border);
+  }
+
+  .lang-menu-trigger:hover,
+  .lang-menu.is-open .lang-menu-trigger {
+    background: rgb(var(--c-tertiary) / 0.7);
+    color: rgb(var(--c-text) / 1);
+  }
+
+  .lang-menu-icon {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .lang-menu-panel {
+    @apply absolute right-0 z-50 min-w-[9.5rem] list-none rounded-xl border-0 bg-surface p-1 shadow-card;
+    margin: 0;
+    /* Closed by default; open via .lang-menu.is-open (animatable) */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    /* Open downward (shell overflow is lifted while .lang-menu.is-open) */
+    top: calc(100% + 0.4rem);
+    bottom: auto;
+    transform: translateY(-0.35rem) scale(0.96);
+    transform-origin: top right;
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0.18s;
+  }
+
+  .lang-menu.is-open .lang-menu-panel {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+  }
+
+  .lang-menu-option {
+    @apply flex w-full items-center rounded-lg px-3 py-2 text-left text-sm font-semibold text-text transition;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .lang-menu-option:hover {
+    background: rgb(var(--c-tertiary) / 0.55);
+  }
+
+  .lang-menu-option.is-active,
+  .lang-menu-option[aria-selected="true"] {
+    color: rgb(var(--theme-dot-active) / 1);
+    background: rgb(var(--c-tertiary) / 0.4);
+  }
+
+  /* Theme switch: sliding pill under ○○○ (system · light · dark) */
+  .theme-switch {
+    @apply relative flex shrink-0 items-center gap-1 rounded-full p-1;
+    background: rgb(var(--c-tertiary) / 0.45);
+    border: 1px solid var(--glass-btn-border);
+    --theme-i: 0;
+    --theme-dot-size: 2rem; /* h-8 w-8 */
+    --theme-gap: 0.25rem; /* gap-1 */
+    --theme-pad: 0.25rem; /* p-1 */
+  }
+
+  .theme-switch-thumb {
+    position: absolute;
+    top: var(--theme-pad);
+    left: var(--theme-pad);
+    z-index: 0;
+    width: var(--theme-dot-size);
+    height: var(--theme-dot-size);
+    border-radius: 9999px;
+    background: rgb(var(--theme-dot-active) / 1);
+    box-shadow: 0 1px 4px rgb(var(--theme-dot-active) / 0.35);
+    transform: translateX(
+      calc(var(--theme-i) * (var(--theme-dot-size) + var(--theme-gap)))
+    );
+    transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  .theme-dot {
+    @apply relative z-[1] inline-flex h-8 w-8 items-center justify-center rounded-full transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+    color: rgb(var(--theme-dot) / 0.85);
+    background: transparent;
+  }
+
+  .theme-dot:hover {
+    color: rgb(var(--c-text) / 1);
+  }
+
+  .theme-dot[aria-checked="true"] {
+    background: transparent;
+    color: #fff;
+    box-shadow: none;
+  }
+
+  .theme-dot svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  /* Language content swap (main) */
+  main.lang-transition {
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+
+  main.lang-transition--out {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+
+  main.lang-transition--in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (min-width: 640px) {
+    .site-header {
+      padding-left: max(1.5rem, env(safe-area-inset-left, 0px));
+      padding-right: max(1.5rem, env(safe-area-inset-right, 0px));
+    }
+
+    .theme-switch {
+      --theme-dot-size: 2.25rem; /* h-9 w-9 */
+    }
+
+    .theme-dot,
+    .lang-menu-trigger {
+      @apply h-9 w-9;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .lang-menu-panel,
+    .header-menu-body,
+    .site-header-inner.is-menu-open .header-menu-body,
+    .theme-switch-thumb,
+    main.lang-transition,
+    html.theme-switching body,
+    html.theme-switching .site-header-inner,
+    html.theme-switching .content-card {
+      transition: none !important;
+    }
+
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation: none !important;
+    }
+  }
+
+  .section-pad {
+    @apply px-4 py-16 sm:px-6 lg:px-8;
+  }
+
+  .section-inner {
+    @apply mx-auto max-w-content;
+  }
+
+  .section-title {
+    @apply mb-2 text-2xl font-bold tracking-tight text-text sm:text-3xl;
+  }
+
+  .section-lead {
+    @apply mb-10 max-w-2xl text-sm leading-relaxed text-secondary/90 sm:text-base;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-panel focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-full border-2 border-ink/80 bg-transparent px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-ink/10;
+  }
+
+  /* Horizontal card slider (works / events) */
+  .card-slider {
+    position: relative;
+  }
+
+  /* Slider only: full content width (heading stays in .section-inner) */
+  .card-slider--wide {
+    width: 100%;
+    max-width: none;
+  }
+
+  .card-slider-track {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    padding-bottom: 0.35rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--c-primary)) transparent;
+  }
+
+  .card-slider-track::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .card-slider-track::-webkit-scrollbar-thumb {
+    background: rgb(var(--c-primary));
+    border-radius: 9999px;
+  }
+
+  /*
+   * Slider card width: compact tiles, ~5 visible on wide screens.
+   * Gap is 1.25rem → 4 gaps for 5 columns: (100% - 5rem) / 5
+   * min-width:0 + overflow:hidden so long English strings clamp (not expand flex item)
+   */
+  .card-slider-item {
+    flex: 0 0 min(15.5rem, 78%);
+    max-width: 17rem;
+    min-width: 0;
+    overflow: hidden;
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 640px) {
+    .card-slider-item {
+      flex: 0 0 calc((100% - 1.25rem) / 2);
+      max-width: none;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .card-slider-item {
+      flex: 0 0 calc((100% - 2.5rem) / 3);
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .card-slider-item {
+      flex: 0 0 calc((100% - 3.75rem) / 4);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .card-slider-item {
+      flex: 0 0 calc((100% - 5rem) / 5);
+    }
+  }
+
+  .slider-btn {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-secondary shadow-sm transition hover:border-primary hover:bg-tertiary/50 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  /*
+   * Square media cards: top image / bottom text.
+   * Text clips with ellipsis; body keeps bottom padding so it never feels cut off.
+   */
+  .media-card {
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+    max-width: 100%;
+  }
+
+  /* Works page grid: full width, up to 5 columns */
+  .works-card-grid {
+    display: grid;
+    width: 100%;
+    max-width: none;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 480px) {
+    .works-card-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 768px) {
+    .works-card-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.15rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .works-card-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1.25rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .works-card-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  .media-card--grid {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .media-card__media {
+    flex: 0 0 50%;
+    position: relative;
+    overflow: hidden;
+    background: rgb(var(--c-tertiary));
+  }
+
+  .media-card__media picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .media-card__media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+  }
+
+  .content-card--clickable:hover .media-card__media img,
+  a.media-card:hover .media-card__media img {
+    transform: scale(1.04);
+  }
+
+  .media-card__media--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      linear-gradient(145deg, rgb(var(--c-primary) / 0.9), rgb(var(--c-panel) / 0.95));
+  }
+
+  .media-card__media--placeholder[data-media-kind="Application"] {
+    background: linear-gradient(145deg, #8d6e63, #5d4037);
+  }
+
+  .media-card__media--placeholder[data-media-kind="Extension"] {
+    background: linear-gradient(145deg, #b39ddb, #7e57c2);
+  }
+
+  .media-card__media--placeholder[data-media-kind="Website"] {
+    background: linear-gradient(145deg, rgb(var(--c-light)), rgb(var(--c-primary)));
+  }
+
+  .media-card__media--placeholder[data-media-kind="Library"] {
+    background: linear-gradient(145deg, rgb(var(--c-panel)), #2a3348);
+  }
+
+  .media-card__media--placeholder[data-media-kind="award"] {
+    background: linear-gradient(145deg, rgb(var(--c-primary)), #4a5f96);
+  }
+
+  .media-card__media--placeholder[data-media-kind="qualification"] {
+    background: linear-gradient(145deg, rgb(var(--c-green)), #2e7d4f);
+  }
+
+  .media-card__media--placeholder[data-media-kind="media"] {
+    background: linear-gradient(145deg, rgb(var(--c-light)), #4a6fa5);
+  }
+
+  .media-card__media--placeholder[data-media-kind="event"] {
+    background: linear-gradient(145deg, rgb(var(--c-panel)), #2a3348);
+  }
+
+  .media-card__placeholder-mark {
+    max-width: 85%;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.18);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-align: center;
+    line-height: 1.3;
+    backdrop-filter: blur(6px);
+  }
+
+  .media-card__body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+    min-height: 0;
+    width: 100%;
+    padding: 0.85rem 1rem 1rem;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .media-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem 0.45rem;
+    flex-shrink: 0;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .media-card__meta > time {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /*
+   * Multi-line ellipsis for titles/descriptions.
+   * - min-width:0 keeps EN long words from blowing out flex width
+   * - max-height backup if -webkit-line-clamp is flaky
+   * - do NOT use the `line-clamp` shorthand (can zero-out text in some engines)
+   * - do NOT use flex:1 1 0 on clamped boxes (height can collapse to 0)
+   */
+  .media-card__title {
+    margin: 0;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.35;
+    max-height: calc(1.35em * 2);
+    color: rgb(var(--c-light));
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    display: -webkit-box;
+    /*! autoprefixer: ignore next */
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .media-card:not(a) .media-card__title {
+    color: rgb(var(--c-text));
+  }
+
+  .media-card__desc {
+    margin: 0;
+    flex-shrink: 1;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    max-height: calc(1.5em * 3);
+    color: rgb(var(--c-text) / 0.9);
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    display: -webkit-box;
+    /*! autoprefixer: ignore next */
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .media-card__body:has(.media-card__more) .media-card__desc {
+    -webkit-line-clamp: 2;
+    max-height: calc(1.5em * 2);
+  }
+
+  .media-card__more {
+    margin: 0;
+    margin-top: auto;
+    flex-shrink: 0;
+    max-width: 100%;
+    padding-top: 0.15rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgb(var(--c-light));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /*
+   * Content cards (works / events / skills / links / profile).
+   * Use these instead of ad-hoc bg-white so dark mode stays elevated.
+   */
+  .content-card {
+    @apply rounded-2xl border border-border bg-surface shadow-card transition;
+  }
+
+  .content-card--hover {
+    @apply hover:-translate-y-0.5 hover:shadow-card-hover hover:border-primary/35;
+  }
+
+  /* Whole card is <a>: keep text colors, show pointer */
+  .content-card--clickable {
+    @apply cursor-pointer;
+  }
+
+  .content-card--clickable:hover h3,
+  .content-card--clickable:hover .media-card__title {
+    @apply underline;
+  }
+
+  .content-card--link {
+    @apply flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-3 text-sm font-medium text-text shadow-card transition hover:border-primary hover:bg-tertiary/35 hover:shadow-card-hover;
+  }
+
+  .skill-chip {
+    @apply inline-block rounded-full border border-border bg-tertiary px-3 py-1.5 text-sm font-medium text-secondary;
+  }
+
+  /*
+   * Career "詳しく見る": 0.5rem gap after description when on the same line.
+   * Gap is on .career-desc::after (not margin-left on the link), so when the
+   * link wraps to the next line it starts without indent.
+   */
+  .career-desc:not(:empty)::after {
+    content: "";
+    display: inline-block;
+    width: 0.5rem;
+  }
+
+  .career-detail-link {
+    white-space: nowrap;
+  }
+}

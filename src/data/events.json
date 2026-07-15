@@ -1,0 +1,127 @@
+[
+    {
+        "date": "2026-02",
+        "title": {
+            "ja": "JANOG 57 Meeting",
+            "en": "JANOG 57 Meeting"
+        },
+        "description": {
+            "ja": "たまたま休日に梅田でJANOGが開催されていたので初参加",
+            "en": ""
+        },
+        "kind": "event",
+        "url": "https://www.janog.gr.jp/meeting/janog57/",
+        "image": "janog57.jpg"
+    },
+    {
+        "date": "2025-12",
+        "title": {
+            "ja": "2025年度ドコモ未来ラボ 中学生の部 入賞",
+            "en": "NTT DOCOMO Mirai Lab 2025 — Junior High School Prize"
+        },
+        "description": {
+            "ja": "金銭の受け渡しをスムーズにする家庭内稟議・精算アプリ「Ringee」を開発",
+            "en": "Developed Ringee, a household approval and reimbursement app designed to make family money transfers smoother and more transparent."
+        },
+        "kind": "award",
+        "url": "https://ogatomo.net/blog/2025/07/27/ringee-1/",
+        "image": "ringee.jpg"
+    },
+    {
+        "date": "2024-10",
+        "title": {
+            "ja": "ITパスポート試験 合格",
+            "en": "Passed the IT Passport Examination"
+        },
+        "description": {
+            "ja": "中学1年生・13歳で国家試験 ITパスポートに合格（725点 / 1000点）。",
+            "en": "Passed Japan's national IT Passport exam at age 13 while in 7th grade, scoring 725 out of 1000."
+        },
+        "kind": "qualification",
+        "url": "https://ogatomo.net/blog/2025/01/16/itpassport/",
+        "image": "itpassport.jpg"
+    },
+    {
+        "date": "2024-08",
+        "title": {
+            "ja": "大阪府知事 表敬訪問",
+            "en": "Courtesy visit to the Governor of Osaka"
+        },
+        "description": {
+            "ja": "Tech Kids Grand Prix 2023 総合優勝の報告のため、大阪府庁にて吉村洋文知事を表敬訪問。",
+            "en": "Visited Governor Hirofumi Yoshimura at the Osaka Prefectural Government Office to report winning the Tech Kids Grand Prix 2023."
+        },
+        "kind": "media",
+        "url": "https://ogatomo.net/blog/2024/08/30/iepay-osaka/",
+        "image": "osaka-hyoukei2024.jpg"
+    },
+    {
+        "date": "2024-05",
+        "title": {
+            "ja": "大阪府豊中市 教育表彰",
+            "en": "Education Award from Toyonaka City, Osaka Prefecture"
+        },
+        "description": {
+            "ja": "Tech Kids Grand Prix 2023での全国優勝などが評価され、豊中市から教育表彰を受けた。",
+            "en": "I received an educational award from Toyonaka City in recognition of achievements such as winning the national championship at the Tech Kids Grand Prix 2023."
+        },
+        "kind": "award",
+        "url": "https://www.facebook.com/toyonakashi/posts/pfbid0JyZHGMjKqyBcjHZeyhiJPzhQLv8KBfcUJ5EhfwagdVhjkoCderjS5qiHhsiPuBxEl"
+    },
+    {
+        "date": "2024-03",
+        "title": {
+            "ja": "大阪府豊中市長 表敬訪問",
+            "en": "Courtesy Visit to the Mayor of Toyonaka"
+        },
+        "description": {
+            "ja": "Tech Kids Grand Prix 2023 総合優勝の報告のため、豊中市役所にて長内繁樹市長を表敬訪問。",
+            "en": "Visited Mayor Shigeki Osanai at Toyonaka City Hall to report winning the Tech Kids Grand Prix 2023."
+        },
+        "kind": "media",
+        "url": "https://ogatomo.net/blog/2024/04/18/hyoukei-houmon/",
+        "image": "toyonaka-hyoukei2024.jpg"
+    },
+    {
+        "date": "2024-02",
+        "title": {
+            "ja": "Tech Kids Grand Prix 2023 総合優勝",
+            "en": "Tech Kids Grand Prix 2023 — Grand Prize Winner"
+        },
+        "description": {
+            "ja": "家庭内決済アプリ「いえPay」を開発し、約7,000件超のエントリーから全国No.1小学生プログラマーに。",
+            "en": "Developed \"IePay,\" a household payment app, and became the number one elementary school programmer in Japan out of over 7,000 entries."
+        },
+        "kind": "award",
+        "url": "https://www.cyberagent.co.jp/news/detail/id=29861",
+        "image": "tkgp2023.jpg"
+    },
+    {
+        "date": "2023-12",
+        "title": {
+            "ja": "OSAKA キッズプログラミングコンテスト2023 最優秀賞",
+            "en": "OSAKA Kids Programming Contest 2023 — Grand Prize"
+        },
+        "description": {
+            "ja": "大阪府内のコンテストで総合優勝を受賞。副賞としてSurface Go 3もいただきました。",
+            "en": "Won the grand prize at the Osaka Prefecture Kids Programming Contest. Received a Surface Go 3 as a special prize."
+        },
+        "kind": "award",
+        "url": "https://www.pref.osaka.lg.jp/o060020/senryaku_kikaku/kidsprograming/interview2023.html",
+        "image": "osaka-programming.jpg"
+    },
+    {
+        "date": "2023-01",
+        "title": {
+            "ja": "Tech Kids Grand Prix 2022 近畿エリア決勝 出場",
+            "en": "Tech Kids Grand Prix 2022 — Kinki Area Finalist"
+        },
+        "description": {
+            "ja": "LINE Notifyを用いた「Pythonで外出App」を開発し、小学生向け全国プログラミングコンテストの近畿エリア決勝に出場。",
+            "en": "Developed an \"Outing Tracker App in Python\" using LINE Notify and participated in the Kinki Regional Finals of the National Programming Contest for elementary school students."
+        },
+        "kind": "event",
+        "url": "https://www.youtube.com/watch?v=FmKDM3iaQbU",
+        "image": "tkgp2022.png"
+    }
+]

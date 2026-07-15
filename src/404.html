@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="{{page.htmlLang}}">
+<head prefix="og: http://ogp.me/ns#">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>{{notFound.title}}</title>
+  <meta name="description" content="{{notFound.body}}">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://about.ogatomo.net/">
+  <meta name="theme-color" content="#7086bd" id="meta-theme-color">
+  <link rel="icon" href="./favicon.ico">
+  <script>
+    (function () {
+      try {
+        var key = "about-ogatomo-theme";
+        var t = localStorage.getItem(key) || "system";
+        if (t !== "light" && t !== "dark" && t !== "system") t = "system";
+        var dark =
+          t === "dark" ||
+          (t === "system" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+        document.documentElement.dataset.theme = t;
+        var meta = document.getElementById("meta-theme-color");
+        if (meta) meta.setAttribute("content", dark ? "#12141c" : "#7086bd");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body class="flex min-h-screen flex-col bg-page text-text" data-locale="{{page.locale}}">
+  <main class="section-inner section-pad flex flex-1 flex-col justify-center">
+    <p class="mb-2 text-sm font-semibold uppercase tracking-widest text-primary">Error 404</p>
+    <h1 class="mb-4 text-3xl font-bold sm:text-4xl" data-i18n="notFound.heading">{{notFound.heading}}</h1>
+    <p class="mb-8 max-w-lg text-sm leading-relaxed text-secondary sm:text-base" data-i18n="notFound.body">
+      {{notFound.body}}
+    </p>
+    <div class="flex flex-wrap items-center gap-3">
+      <a href="./index.{{page.locale}}.html" class="btn-primary" data-home-link data-i18n="notFound.home">{{notFound.home}}</a>
+      <div class="lang-menu" data-lang-menu>
+        <button
+          type="button"
+          class="lang-menu-trigger"
+          data-lang-trigger
+          aria-expanded="false"
+          aria-haspopup="listbox"
+          data-i18n-attr="aria-label:langSwitch.aria,title:langSwitch.aria"
+          title="{{langSwitch.aria}}"
+          aria-label="{{langSwitch.aria}}"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="lang-menu-icon">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+            <path d="M3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <ul class="lang-menu-panel" data-lang-panel role="listbox">
+          <li>
+            <button type="button" role="option" class="lang-menu-option" data-lang-opt="ja" data-i18n="langSwitch.ja" aria-selected="{{page.langJaActive}}">{{langSwitch.ja}}</button>
+          </li>
+          <li>
+            <button type="button" role="option" class="lang-menu-option" data-lang-opt="en" data-i18n="langSwitch.en" aria-selected="{{page.langEnActive}}">{{langSwitch.en}}</button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-tertiary px-4 py-8 text-center text-sm text-secondary">
+    <p class="mb-3 font-medium text-text">&copy; <span id="copyright-year">2026</span> Tomoya Ogawa</p>
+    <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+      <li><a class="hover:text-primary hover:underline" href="https://ogatomo.net/about/" data-i18n="footer.terms">{{footer.terms}}</a></li>
+      <li><a class="hover:text-primary hover:underline" href="https://ogatomo.net/privacy-policy/" data-i18n="footer.privacy">{{footer.privacy}}</a></li>
+      <li><a class="hover:text-primary hover:underline" href="https://github.com/ogatomo21/about-ogatomo" data-i18n="footer.github">{{footer.github}}</a></li>
+    </ul>
+  </footer>
+  <script type="module" src="../src/js/main.js"></script>
+</body>
+</html>

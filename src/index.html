@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="{{page.htmlLang}}">
+<head prefix="og: http://ogp.me/ns#">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>{{meta.title}}</title>
+  <meta name="description" content="{{meta.description}}">
+  <link rel="canonical" href="{{page.canonical}}">
+  <link rel="alternate" hreflang="ja" href="{{page.hreflangJa}}">
+  <link rel="alternate" hreflang="en" href="{{page.hreflangEn}}">
+  <link rel="alternate" hreflang="x-default" href="{{page.hreflangJa}}">
+  <meta property="og:title" content="{{meta.ogTitle}}">
+  <meta property="og:description" content="{{meta.ogDescription}}">
+  <meta property="og:image" content="https://about.ogatomo.net/images/profile-ogp.webp">
+  <meta property="og:url" content="{{page.ogUrl}}">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="{{page.ogLocale}}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{meta.ogTitle}}">
+  <meta name="twitter:description" content="{{meta.twitterDescription}}">
+  <meta name="twitter:image" content="https://about.ogatomo.net/images/profile-ogp.webp">
+  <meta name="theme-color" content="#7086bd" id="meta-theme-color">
+  <link rel="icon" href="./favicon.ico">
+  <!-- Apply theme before paint to avoid flash (system / light / dark) -->
+  <script>
+    (function () {
+      try {
+        var key = "about-ogatomo-theme";
+        var t = localStorage.getItem(key) || "system";
+        if (t !== "light" && t !== "dark" && t !== "system") t = "system";
+        var dark =
+          t === "dark" ||
+          (t === "system" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+        document.documentElement.dataset.theme = t;
+        var meta = document.getElementById("meta-theme-color");
+        if (meta) meta.setAttribute("content", dark ? "#12141c" : "#7086bd");
+      } catch (e) {}
+    })();
+  </script>
+  <!-- Person JSON-LD: single source src/data/person.json (inject + lang switch) -->
+  <script type="application/ld+json" id="json-ld-person">{{{page.jsonLd}}}</script>
+</head>
+<body class="min-h-screen bg-page text-text" data-locale="{{page.locale}}">
+  <!-- Glass header: desktop = nav + tools; mobile = hamburger panel -->
+  <header id="site-header" class="site-header" aria-hidden="true">
+    <div class="site-header-inner" data-header-menu>
+      <div class="site-header-bar">
+        <a
+          href="#top"
+          class="site-brand"
+          data-nav="home"
+          data-page-link="home"
+        >about.ogatomo</a>
+        <button
+          type="button"
+          class="header-menu-btn"
+          data-header-menu-toggle
+          aria-expanded="false"
+          aria-controls="header-menu-panel"
+          data-i18n-attr="aria-label:nav.menuOpen"
+          aria-label="{{nav.menuOpen}}"
+        >
+          <svg class="header-menu-icon header-menu-icon--open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <svg class="header-menu-icon header-menu-icon--close" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="header-menu-body" id="header-menu-panel" data-header-menu-panel>
+        <nav class="site-header-nav" data-i18n-attr="aria-label:nav.aria" aria-label="{{nav.aria}}">
+          <a href="#top" class="site-nav-btn" data-nav="home" data-i18n="nav.home">{{nav.home}}</a>
+          <a href="./works.{{page.locale}}.html" class="site-nav-btn" data-nav="works" data-page-link="works" data-i18n="nav.works">{{nav.works}}</a>
+          <a
+            href="https://ogatomo.net/contact"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="site-nav-btn site-nav-btn--primary"
+            data-i18n="nav.contact"
+          >{{nav.contact}}</a>
+        </nav>
+        <div class="header-tools">
+          <div class="lang-menu" data-lang-menu>
+            <button
+              type="button"
+              class="lang-menu-trigger"
+              data-lang-trigger
+              aria-expanded="false"
+              aria-haspopup="listbox"
+              data-i18n-attr="aria-label:langSwitch.aria,title:langSwitch.aria"
+              title="{{langSwitch.aria}}"
+              aria-label="{{langSwitch.aria}}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="lang-menu-icon">
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                <path d="M3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <ul class="lang-menu-panel" data-lang-panel role="listbox">
+              <li>
+                <button type="button" role="option" class="lang-menu-option" data-lang-opt="ja" data-i18n="langSwitch.ja" aria-selected="{{page.langJaActive}}">{{langSwitch.ja}}</button>
+              </li>
+              <li>
+                <button type="button" role="option" class="lang-menu-option" data-lang-opt="en" data-i18n="langSwitch.en" aria-selected="{{page.langEnActive}}">{{langSwitch.en}}</button>
+              </li>
+            </ul>
+          </div>
+          <div class="theme-switch" role="radiogroup" data-i18n-attr="aria-label:theme.aria" aria-label="{{theme.aria}}">
+            <button
+              type="button"
+              class="theme-dot"
+              role="radio"
+              data-theme-opt="system"
+              aria-checked="false"
+              data-i18n-attr="title:theme.system,aria-label:theme.systemAria"
+              title="{{theme.system}}"
+              aria-label="{{theme.systemAria}}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 20h8M12 16v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="theme-dot"
+              role="radio"
+              data-theme-opt="light"
+              aria-checked="false"
+              data-i18n-attr="title:theme.light,aria-label:theme.lightAria"
+              title="{{theme.light}}"
+              aria-label="{{theme.lightAria}}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="theme-dot"
+              role="radio"
+              data-theme-opt="dark"
+              aria-checked="false"
+              data-i18n-attr="title:theme.dark,aria-label:theme.darkAria"
+              title="{{theme.dark}}"
+              aria-label="{{theme.darkAria}}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3a7 7 0 0 0 11.5 11.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section
+      id="top"
+      class="hero-viewport relative flex flex-col bg-panel text-ink"
+      data-i18n-attr="aria-label:hero.aria"
+      aria-label="{{hero.aria}}"
+    >
+      <!-- CSS image-set can pull multiple formats; <picture> loads only one -->
+      <picture class="hero-bg" aria-hidden="true">
+        <source type="image/avif" srcset="/images/header.avif" />
+        <source type="image/webp" srcset="/images/header.webp" />
+        <img src="/images/header.jpg" alt="" width="960" height="480" decoding="async" fetchpriority="high" />
+      </picture>
+      <div class="hero-scrim" aria-hidden="true"></div>
+      <div class="relative z-[2] flex flex-1 items-center">
+        <div class="section-inner w-full px-4 py-10 sm:px-6 lg:px-8">
+          <p class="mb-3 text-sm font-medium uppercase tracking-widest text-ink/80" data-i18n="hero.kicker">{{hero.kicker}}</p>
+          <h1 class="mb-3 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl" data-i18n="hero.nameEn">{{hero.nameEn}}</h1>
+          <p class="mb-2 text-lg text-ink/95 sm:text-xl" data-i18n="hero.nameJa">{{hero.nameJa}}</p>
+          <p class="mb-6 max-w-xl text-base text-ink/80 sm:text-lg">
+            <span data-i18n="hero.tagline">{{hero.tagline}}</span><br>
+            <span data-i18n="hero.subtitle">{{hero.subtitle}}</span>
+          </p>
+          <div class="mb-8 flex flex-wrap gap-3">
+            <a href="https://ogatomo.net" target="_blank" rel="me noopener noreferrer" class="btn-primary gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" width="1.25rem" viewBox="0 0 128 128" aria-hidden="true">
+                    <g transform="matrix(1,0,0,1,-21.918,22.6751)">
+                    <path
+                        d="M132.418,-9.8C135.001,-9.3 136.939,-8.425 138.23,-7.175C139.522,-5.925 140.168,-4.467 140.168,-2.8C140.168,-0.05 139.397,1.95 137.855,3.2C136.314,4.45 133.876,4.95 130.543,4.7C123.043,4.117 117.189,3.721 112.98,3.512C108.772,3.304 103.251,3.158 96.418,3.075C93.335,18.408 90.501,33.825 87.918,49.325C87.001,54.992 86.043,61.554 85.043,69.012C84.043,76.471 83.376,82.492 83.043,87.075C82.876,89.492 81.876,91.346 80.043,92.637C78.21,93.929 76.001,94.575 73.418,94.575C70.668,94.575 68.543,93.908 67.043,92.575C65.543,91.242 64.793,89.492 64.793,87.325C64.793,85.325 65.105,82.012 65.73,77.387C66.355,72.762 67.085,67.908 67.918,62.825C68.835,57.742 69.543,53.325 70.043,49.575C70.96,43.242 72.001,36.95 73.168,30.7C74.335,24.45 75.501,18.533 76.668,12.95C76.918,11.7 77.21,10.262 77.543,8.637C77.876,7.012 78.251,5.2 78.668,3.2C70.501,3.45 64.085,4.117 59.418,5.2C54.751,6.283 51.439,7.804 49.48,9.762C47.522,11.721 46.543,14.242 46.543,17.325C46.543,20.158 47.376,22.867 49.043,25.45C49.376,26.033 49.543,26.658 49.543,27.325C49.543,28.908 48.605,30.387 46.73,31.762C44.855,33.137 42.918,33.825 40.918,33.825C39.501,33.825 38.335,33.408 37.418,32.575C35.751,31.158 34.376,29.137 33.293,26.512C32.21,23.887 31.668,20.908 31.668,17.575C31.668,10.492 33.98,4.804 38.605,0.512C43.23,-3.779 50.272,-6.925 59.73,-8.925C69.189,-10.925 81.335,-11.925 96.168,-11.925C105.335,-11.925 112.647,-11.758 118.105,-11.425C123.564,-11.092 128.335,-10.55 132.418,-9.8Z"
+                        fill="#FFFFFF" />
+                    </g>
+                </svg>
+                <span data-i18n="hero.blog">{{hero.blog}}</span>
+            </a>
+            <a href="https://github.com/ogatomo21" target="_blank" rel="me noopener noreferrer" class="btn-outline" data-i18n="hero.github">{{hero.github}}</a>
+            <a href="https://ogatomo.net/contact" target="_blank" rel="noopener noreferrer" class="btn-outline" data-i18n="hero.contact">{{hero.contact}}</a>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <a href="https://x.com/ogatomo21" target="_blank" rel="me noopener noreferrer" class="flex h-11 w-11 items-center justify-center rounded-full bg-black text-white transition hover:opacity-90" aria-label="X (Twitter)">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/></svg>
+            </a>
+            <a href="https://instagram.com/ogatomo21" target="_blank" rel="me noopener noreferrer" class="flex h-11 w-11 items-center justify-center rounded-full bg-[#e1306c] text-white transition hover:opacity-90" aria-label="Instagram">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+            </a>
+            <a href="https://github.com/ogatomo21" target="_blank" rel="me noopener noreferrer" class="flex h-11 w-11 items-center justify-center rounded-full bg-[#333] text-white transition hover:opacity-90" aria-label="GitHub">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 496 512" fill="currentColor" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3 .3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5 .3-6.2 2.3zm44.2-1.7c-2.9 .7-4.9 2.6-4.6 4.9 .3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3 .7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3 .3 2.9 2.3 3.9 1.6 1 3.6 .7 4.3-.7 .7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3 .7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3 .7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-more pointer-events-none absolute inset-x-0 bottom-0 flex justify-center">
+        <a
+          href="#about"
+          id="scroll-to-about"
+          class="btn-more pointer-events-auto mb-2 inline-flex items-center gap-2 rounded-full bg-surface px-5 py-2.5 text-sm font-semibold text-secondary shadow-card transition hover:bg-tertiary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+        >
+          <span data-i18n="hero.more">{{hero.more}}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <section id="about" class="section-pad bg-page" data-i18n-attr="aria-label:about.sectionAria" aria-label="{{about.sectionAria}}">
+      <div class="section-inner">
+        <div class="grid gap-12 md:grid-cols-2 md:gap-10 md:items-start">
+          <div>
+            <h2 id="about-heading" class="section-title" data-i18n="about.title">{{about.title}}</h2>
+            <p class="mb-6 max-w-2xl text-sm leading-relaxed text-secondary/90 sm:text-base" data-i18n="about.lead">{{about.lead}}</p>
+            <div class="space-y-4 text-sm leading-relaxed text-text sm:text-base">
+              <p data-i18n="about.p1">{{about.p1}}</p>
+              <p>
+                <span data-i18n="about.p2Before">{{about.p2Before}}</span><a href="https://systems.ogatomo.net" class="font-medium text-light hover:underline" target="_blank" rel="me noopener noreferrer">OgaTomo Systems</a><span data-i18n="about.p2After">{{about.p2After}}</span>
+              </p>
+              <p>
+                <span data-i18n="about.p3Before">{{about.p3Before}}</span><a href="https://ogatomo.net" class="font-medium text-light hover:underline" target="_blank" rel="me noopener noreferrer" data-i18n="about.p3Mid">{{about.p3Mid}}</a><span data-i18n="about.p3After">{{about.p3After}}</span>
+              </p>
+              <p data-i18n="about.p4">{{about.p4}}</p>
+            </div>
+          </div>
+          <div id="profile">
+            <h2 class="section-title" data-i18n="profile.title">{{profile.title}}</h2>
+            <p class="mb-6 max-w-2xl text-sm leading-relaxed text-secondary/90 sm:text-base" data-i18n="profile.lead">{{profile.lead}}</p>
+            <div class="content-card overflow-hidden">
+              <dl class="divide-y divide-border">
+                <div class="grid gap-1 px-5 py-4 sm:grid-cols-[8rem_1fr] sm:gap-3">
+                  <dt class="text-sm font-semibold text-secondary" data-i18n="profile.name">{{profile.name}}</dt>
+                  <dd class="text-sm sm:text-base" data-i18n="profile.nameValue">{{profile.nameValue}}</dd>
+                </div>
+                <div class="grid gap-1 px-5 py-4 sm:grid-cols-[8rem_1fr] sm:gap-3">
+                  <dt class="text-sm font-semibold text-secondary" data-i18n="profile.birth">{{profile.birth}}</dt>
+                  <dd class="text-sm sm:text-base" data-i18n="profile.birthValue">{{profile.birthValue}}</dd>
+                </div>
+                <div class="grid gap-1 px-5 py-4 sm:grid-cols-[8rem_1fr] sm:gap-3">
+                  <dt class="text-sm font-semibold text-secondary" data-i18n="profile.location">{{profile.location}}</dt>
+                  <dd class="text-sm sm:text-base" data-i18n="profile.locationValue">{{profile.locationValue}}</dd>
+                </div>
+                <div class="grid gap-1 px-5 py-4 sm:grid-cols-[8rem_1fr] sm:gap-3">
+                  <dt class="text-sm font-semibold text-secondary" data-i18n="profile.trade">{{profile.trade}}</dt>
+                  <dd class="text-sm sm:text-base">
+                    <a href="https://systems.ogatomo.net" class="text-light hover:underline" target="_blank" rel="noopener noreferrer">OgaTomo Systems</a>
+                    <span data-i18n="profile.tradeNote">{{profile.tradeNote}}</span>
+                  </dd>
+                </div>
+                <div class="grid gap-1 px-5 py-4 sm:grid-cols-[8rem_1fr] sm:gap-3">
+                  <dt class="text-sm font-semibold text-secondary" data-i18n="profile.languages">{{profile.languages}}</dt>
+                  <dd class="text-sm sm:text-base" data-i18n="profile.languagesValue">{{profile.languagesValue}}</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad bg-tertiary/50" data-i18n-attr="aria-label:career.sectionAria" aria-label="{{career.sectionAria}}">
+      <div class="section-inner">
+        <div class="grid gap-12 lg:grid-cols-2 lg:gap-10 lg:items-start">
+          <div id="career">
+            <h2 class="section-title" data-i18n="career.title">{{career.title}}</h2>
+            <p class="mb-6 max-w-2xl text-sm leading-relaxed text-secondary/90 sm:text-base" data-i18n="career.lead">{{career.lead}}</p>
+            <ol class="relative" id="career-list">
+              <!-- inject:career -->
+            </ol>
+          </div>
+          <div id="skills">
+            <h2 class="section-title" data-i18n="skills.title">{{skills.title}}</h2>
+            <p class="mb-6 max-w-2xl text-sm leading-relaxed text-secondary/90 sm:text-base" data-i18n="skills.lead">{{skills.lead}}</p>
+            <div class="flex flex-col gap-4" id="skills-list">
+              <!-- inject:skills -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="works" class="section-pad bg-page">
+      <div class="section-inner">
+        <div class="mb-10 flex flex-wrap items-end justify-between gap-4 sm:mb-12">
+          <div>
+            <h2 class="section-title" data-i18n="works.title">{{works.title}}</h2>
+            <p class="mt-1 max-w-2xl text-sm leading-relaxed text-secondary/90 sm:text-base" data-i18n="works.leadHome">{{works.leadHome}}</p>
+          </div>
+          <div class="hidden gap-2 md:flex" data-slider-controls="works-slider">
+            <button type="button" class="slider-btn" data-slider-prev aria-controls="works-slider-track" data-i18n-attr="aria-label:works.prev" aria-label="{{works.prev}}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="slider-btn" data-slider-next aria-controls="works-slider-track" data-i18n-attr="aria-label:works.next" aria-label="{{works.next}}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-slider card-slider--wide" data-card-slider data-interval="5000" id="works-slider">
+        <div class="card-slider-track" data-slider-track id="works-slider-track" tabindex="0" role="region" data-i18n-attr="aria-label:works.listAria" aria-label="{{works.listAria}}">
+          <!-- inject:works -->
+        </div>
+      </div>
+      <div class="section-inner">
+        <p class="mt-8 flex flex-col items-center gap-2 text-center text-sm sm:flex-row sm:justify-center sm:gap-6">
+          <a href="./works.{{page.locale}}.html" class="font-semibold text-primary hover:underline" data-page-link="works" data-i18n="works.viewAll">{{works.viewAll}}</a>
+          <a href="https://github.com/ogatomo21?tab=repositories" target="_blank" rel="noopener noreferrer" class="font-medium text-light hover:underline" data-i18n="works.githubMore">
+            {{works.githubMore}}
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <section id="events" class="section-pad bg-tertiary/50">
+      <div class="section-inner">
+        <div class="mb-10 flex flex-wrap items-end justify-between gap-4 sm:mb-12">
+          <div>
+            <h2 class="section-title" data-i18n="events.title">{{events.title}}</h2>
+            <p class="mt-1 max-w-2xl text-sm leading-relaxed text-secondary/90 sm:text-base" data-i18n="events.lead">{{events.lead}}</p>
+          </div>
+          <div class="hidden gap-2 md:flex" data-slider-controls="events-slider">
+            <button type="button" class="slider-btn" data-slider-prev aria-controls="events-slider-track" data-i18n-attr="aria-label:events.prev" aria-label="{{events.prev}}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="slider-btn" data-slider-next aria-controls="events-slider-track" data-i18n-attr="aria-label:events.next" aria-label="{{events.next}}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-slider card-slider--wide" data-card-slider data-interval="5000" id="events-slider">
+        <div class="card-slider-track" data-slider-track id="events-slider-track" tabindex="0" role="region" data-i18n-attr="aria-label:events.listAria" aria-label="{{events.listAria}}">
+          <!-- inject:events -->
+        </div>
+      </div>
+    </section>
+
+    <section id="links" class="section-pad bg-page">
+      <div class="section-inner">
+        <h2 class="section-title" data-i18n="links.title">{{links.title}}</h2>
+        <p class="section-lead" data-i18n="links.lead">{{links.lead}}</p>
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" id="links-list">
+          <!-- inject:links -->
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad bg-panel text-ink">
+      <div class="section-inner text-center">
+        <h2 class="mb-3 text-2xl font-bold sm:text-3xl" data-i18n="cta.title">{{cta.title}}</h2>
+        <p class="mx-auto mb-8 max-w-xl text-sm text-ink/75 sm:text-base" data-i18n="cta.body">
+          {{cta.body}}
+        </p>
+        <a href="https://ogatomo.net/contact" target="_blank" rel="noopener noreferrer" class="btn-primary" data-i18n="cta.button">{{cta.button}}</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-tertiary px-4 py-10 text-center text-sm text-secondary">
+    <p class="mb-4 font-medium text-text">&copy; <span id="copyright-year">2026</span> Tomoya Ogawa</p>
+    <ul class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+      <li><a class="hover:text-primary hover:underline" href="https://ogatomo.net/about/" data-i18n="footer.terms">{{footer.terms}}</a></li>
+      <li><a class="hover:text-primary hover:underline" href="https://ogatomo.net/privacy-policy/" data-i18n="footer.privacy">{{footer.privacy}}</a></li>
+      <li><a class="hover:text-primary hover:underline" href="https://github.com/ogatomo21/about-ogatomo" data-i18n="footer.github">{{footer.github}}</a></li>
+    </ul>
+  </footer>
+  <!-- Path is relative to .tmp/*.html (inject output), not src/ -->
+  <script type="module" src="../src/js/main.js"></script>
+</body>
+</html>

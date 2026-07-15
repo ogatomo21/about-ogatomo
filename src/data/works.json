@@ -1,0 +1,108 @@
+[
+  {
+    "title": {
+      "ja": "モバイルICOCA 利用履歴CSV出力拡張機能",
+      "en": "Mobile ICOCA usage history CSV exporter"
+    },
+    "type": "Extension",
+    "date": "202502",
+    "description": {
+      "ja": "モバイルICOCAの会員サイトで利用履歴をCSVとして書き出します。経費精算などに便利です。",
+      "en": "Exports usage history as CSV from the Mobile ICOCA member site — handy for expense reports."
+    },
+    "url": "https://chromewebstore.google.com/detail/piokkhdkhkjaakodpogbanagngdlonni"
+  },
+  {
+    "title": {
+      "ja": "のみノート",
+      "en": "NomiNote"
+    },
+    "type": "Application",
+    "date": "202501",
+    "description": {
+      "ja": "ブラウザ上で簡単に飲酒量を記録できるアプリ。ビール換算などで記録できます。",
+      "en": "A browser app to log alcohol intake easily, including beer-equivalent conversion."
+    },
+    "url": "https://gh.ogtm.dev/nominote/"
+  },
+  {
+    "title": {
+      "ja": "レンチン電卓",
+      "en": "Microwave time converter"
+    },
+    "type": "Application",
+    "date": "202410",
+    "description": {
+      "ja": "電子レンジのワット数と時間を相互変換できるアプリです。",
+      "en": "Converts microwave wattage and cooking time both ways."
+    },
+    "url": "https://gh.ogtm.dev/renchinCalc/"
+  },
+  {
+    "title": {
+      "ja": "直zon",
+      "en": "ChokuZon"
+    },
+    "type": "Extension",
+    "date": "202410",
+    "description": {
+      "ja": "Amazon.co.jpの商品検索ページで、表示する商品を出荷元・販売元がAmazon.co.jpのものだけに絞り込めるChrome拡張機能です。",
+      "en": "Chrome extension that filters Amazon.co.jp search results to items shipped and sold by Amazon.co.jp."
+    },
+    "url": "https://chromewebstore.google.com/detail/gdhfhknfgenpkmjmgjdhpnbbabnlgdci"
+  },
+  {
+    "title": {
+      "ja": "WakAPI",
+      "en": "WakAPI"
+    },
+    "type": "Library",
+    "date": "202410",
+    "description": {
+      "ja": "PythonからWakaTimeのAPIを叩けるライブラリ。PyPIに公開済み。",
+      "en": "Python library for the WakaTime API, published on PyPI."
+    },
+    "url": "https://pypi.org/project/WakAPI/"
+  },
+  {
+    "title": {
+      "ja": "Tomoyan's Blog for Android",
+      "en": "Tomoyan's Blog for Android"
+    },
+    "type": "Application",
+    "date": "202402",
+    "description": {
+      "ja": "AndroidでTomoyan's Blogを開くだけのショートカットのようなアプリ。Android 4.1でも動作。",
+      "en": "A simple Android shortcut app that opens Tomoyan's Blog. Works on Android 4.1+."
+    },
+    "url": "https://github.com/ogatomo21/tomoyansblog-android"
+  },
+  {
+    "title": {
+      "ja": "いえPay",
+      "en": "IePay"
+    },
+    "type": "Application",
+    "date": "202309",
+    "description": {
+      "ja": "QRコードを用いた家庭・SOHO向けの簡易決済システム。PHPを活用しDBを使わない設計でインストールしやすくしました。\nTech Kids Grand Prix 2023 総合優勝作品。",
+      "en": "A simple QR-code payment system for homes and SOHOs. Built with PHP without a database for easy install.\nGrand Prize winner at Tech Kids Grand Prix 2023."
+    },
+    "url": "https://github.com/ogatomo21/iepay",
+    "image": "iepay.png"
+  },
+  {
+    "title": {
+      "ja": "Pythonで外出管理App",
+      "en": "Outing Tracker App in Python"
+    },
+    "type": "Application",
+    "date": "202209",
+    "description": {
+      "ja": "外出・帰宅時にボタンを押すことで保護者などへLINEまたはLINEグループに通知します。送信時に外出先を選択して通知することもできます。",
+      "en": "Notifies parents on LINE (or a LINE group) when you leave or come home. You can also pick a destination when sending."
+    },
+    "url": "https://github.com/ogatomo21/python-gui-school",
+    "image": "tkgp2022.png"
+  }
+]

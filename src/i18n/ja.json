@@ -1,0 +1,131 @@
+{
+    "lang": "ja",
+    "locale": "ja_JP",
+    "htmlLang": "ja",
+    "dir": "ltr",
+    "meta": {
+        "title": "about.ogatomo | 小川 智也 (Tomoya Ogawa)",
+        "description": "中学3年生のプログラマー・ブロガーである小川智也（Tomoya Ogawa）のポートフォリオです。プロフィール、経歴、制作物、スキルなどを紹介しています。",
+        "ogTitle": "about.ogatomo | 小川 智也",
+        "ogDescription": "中学3年生のプログラマー・ブロガー、小川智也のポートフォリオです。プロフィールや制作物、経歴などをまとめています。",
+        "twitterDescription": "中学3年生のプログラマー・ブロガー、小川智也のポートフォリオです。"
+    },
+    "nav": {
+        "aria": "サイトナビ",
+        "home": "ホーム",
+        "works": "制作物",
+        "contact": "お問い合わせ",
+        "menuOpen": "メニューを開く",
+        "menuClose": "メニューを閉じる"
+    },
+    "langSwitch": {
+        "aria": "言語",
+        "ja": "日本語",
+        "en": "English"
+    },
+    "theme": {
+        "aria": "カラーテーマ",
+        "system": "システム",
+        "systemAria": "システム設定に合わせる",
+        "light": "ライト",
+        "lightAria": "ライトモード",
+        "dark": "ダーク",
+        "darkAria": "ダークモード"
+    },
+    "hero": {
+        "aria": "ヒーロー",
+        "kicker": "about.ogatomo | PORTFOLIO",
+        "nameEn": "Tomoya Ogawa",
+        "nameJa": "小川 智也",
+        "tagline": "Programmer / Blogger / Student",
+        "subtitle": "中学3年生 · OgaTomo Systems 代表",
+        "blog": "Tomoyan's Blog",
+        "github": "GitHub",
+        "contact": "お問い合わせ",
+        "more": "もっと見る"
+    },
+    "about": {
+        "sectionAria": "自己紹介とプロフィール",
+        "title": "自己紹介",
+        "lead": "Who I am",
+        "p1": "プログラミングとテクノロジーが好きな14歳。Webアプリの制作や、初心者にも分かりやすいテック記事の執筆をしています。",
+        "p2Before": "小学1年生の頃からWeb開発を始め、2023年には",
+        "p2After": "という個人事業を立ち上げました。",
+        "p3Before": "現在は、システム開発や",
+        "p3Mid": "Tomoyan's Blog",
+        "p3After": "でのブログ執筆など、様々な事業を行っています。",
+        "p4": "「専門的な内容を、初心者にも分かりやすく」を大切に、これからも、役に立つものづくりと、わかりやすい情報発信を続けていきます。"
+    },
+    "profile": {
+        "title": "プロフィール",
+        "lead": "基本情報",
+        "name": "氏名",
+        "nameValue": "Tomoya Ogawa（小川 智也）",
+        "birth": "生年月日",
+        "birthValue": "2011年10月10日",
+        "location": "所在地",
+        "locationValue": "Toyonaka, Osaka, Japan",
+        "trade": "屋号",
+        "tradeNote": "（オガトモシステムズ）",
+        "languages": "自然言語",
+        "languagesValue": "日本語 / English (a little)"
+    },
+    "career": {
+        "sectionAria": "経歴とスキル・できること",
+        "title": "経歴",
+        "lead": "これまでの歩み",
+        "detail": "詳しく見る →"
+    },
+    "skills": {
+        "title": "スキル・できること",
+        "lead": "得意分野・技術・その他いろいろ"
+    },
+    "works": {
+        "title": "制作物",
+        "lead": "Apps, extensions, libraries — 暮らしや学習をちょっと便利にする作品たち",
+        "leadHome": "最新の制作物（新着10件）",
+        "prev": "前の制作物",
+        "next": "次の制作物",
+        "listAria": "制作物のカード一覧（横スクロール可）",
+        "listPageAria": "制作物の一覧",
+        "viewAll": "すべての制作物を見る →",
+        "githubMore": "GitHub でリポジトリ一覧を見る →",
+        "pageTitle": "制作物 | about.ogatomo",
+        "pageDescription": "小川 智也（Tomoya Ogawa）の制作物一覧。アプリ、拡張機能、ライブラリなど。",
+        "backHome": "トップへ戻る"
+    },
+    "events": {
+        "title": "イベント・受賞・資格",
+        "lead": "大会出場・表彰・国家試験など",
+        "prev": "前のイベント",
+        "next": "次のイベント",
+        "listAria": "イベント・受賞・資格のカード一覧（横スクロール可）",
+        "detail": "詳しく見る →",
+        "kind": {
+            "award": "受賞",
+            "qualification": "資格",
+            "media": "メディア",
+            "event": "イベント"
+        }
+    },
+    "links": {
+        "title": "リンク集",
+        "lead": "SNS・ブログ・開発アカウントなど"
+    },
+    "cta": {
+        "title": "ご連絡・仕事のご相談",
+        "body": "記事執筆・制作・その他のお問い合わせは、ブログのお問い合わせフォームからどうぞ。できる範囲でお返事します。",
+        "button": "お問い合わせフォームへ"
+    },
+    "footer": {
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "github": "View on GitHub"
+    },
+    "notFound": {
+        "title": "404 Not Found | about.ogatomo",
+        "heading": "ページが見つかりません",
+        "body": "お探しのページは移動したか、削除された可能性があります。トップページから目的の情報をお探しください。",
+        "home": "トップページへ"
+    }
+}

@@ -1,0 +1,52 @@
+[
+  {
+    "title": { "ja": "Tomoyan's Blog", "en": "Tomoyan's Blog" },
+    "url": "https://ogatomo.net",
+    "group": "web"
+  },
+  {
+    "title": { "ja": "OgaTomo Systems", "en": "OgaTomo Systems" },
+    "url": "https://systems.ogatomo.net",
+    "group": "web"
+  },
+  {
+    "title": { "ja": "X (Twitter)", "en": "X (Twitter)" },
+    "url": "https://x.com/ogatomo21",
+    "group": "sns"
+  },
+  {
+    "title": { "ja": "GitHub", "en": "GitHub" },
+    "url": "https://github.com/ogatomo21",
+    "group": "dev"
+  },
+  {
+    "title": { "ja": "Instagram", "en": "Instagram" },
+    "url": "https://instagram.com/ogatomo21",
+    "group": "sns"
+  },
+  {
+    "title": { "ja": "Facebook", "en": "Facebook" },
+    "url": "https://facebook.com/ogatomo21",
+    "group": "sns"
+  },
+  {
+    "title": { "ja": "Qiita", "en": "Qiita" },
+    "url": "https://qiita.com/ogatomo21",
+    "group": "dev"
+  },
+  {
+    "title": { "ja": "Zenn", "en": "Zenn" },
+    "url": "https://zenn.dev/ogatomo21",
+    "group": "dev"
+  },
+  {
+    "title": { "ja": "note", "en": "note" },
+    "url": "https://note.com/ogatomo21",
+    "group": "dev"
+  },
+  {
+    "title": { "ja": "YouTube", "en": "YouTube" },
+    "url": "https://youtube.com/@ogatomo21",
+    "group": "sns"
+  }
+]

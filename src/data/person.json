@@ -1,0 +1,80 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Tomoya Ogawa",
+  "alternateName": "小川 智也",
+  "givenName": {
+    "ja": "智也",
+    "en": "Tomoya"
+  },
+  "familyName": {
+    "ja": "小川",
+    "en": "Ogawa"
+  },
+  "description": {
+    "ja": "プログラミングとテクノロジーが好きな14歳。Webアプリの制作や、初心者にも分かりやすいテック記事の執筆をしています。",
+    "en": "I'm a 14-year-old who loves programming and technology. I build web apps and write tech articles that beginners can follow."
+  },
+  "birthDate": "2011-10-10",
+  "gender": "https://schema.org/Male",
+  "nationality": {
+    "@type": "Country",
+    "name": "Japan"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Toyonaka, Osaka",
+    "addressCountry": "JP"
+  },
+  "jobTitle": ["Programmer", "Blogger", "Student"],
+  "knowsLanguage": ["Japanese", "English"],
+  "knowsAbout": {
+    "ja": [
+      "プログラミング",
+      "Web開発",
+      "Webアプリ",
+      "テック記事の執筆",
+      "ブログ"
+    ],
+    "en": [
+      "Programming",
+      "Web development",
+      "Web applications",
+      "Tech writing",
+      "Blogging"
+    ]
+  },
+  "sameAs": [
+    "https://x.com/ogatomo21",
+    "https://instagram.com/ogatomo21",
+    "https://github.com/ogatomo21",
+    "https://ogatomo.net",
+    "https://systems.ogatomo.net"
+  ],
+  "url": "https://about.ogatomo.net",
+  "image": {
+    "@type": "ImageObject",
+    "url": "https://about.ogatomo.net/images/profile-ogp.webp",
+    "contentUrl": "https://about.ogatomo.net/images/profile-ogp.webp",
+    "width": 1200,
+    "height": 630,
+    "caption": {
+      "ja": "小川 智也（Tomoya Ogawa）のプロフィール画像",
+      "en": "Profile photo of Tomoya Ogawa"
+    }
+  },
+  "award": {
+    "ja": [
+      "2023/01 Tech Kids Grand Prix 2022 近畿エリア決勝 出場",
+      "2023/12 OSAKA キッズプログラミングコンテスト2023 総合優勝",
+      "2024/02 Tech Kids Grand Prix 2023 総合優勝",
+      "2024/10 ITパスポート試験 合格"
+    ],
+    "en": [
+      "2023/01 Tech Kids Grand Prix 2022 Kinki Area Finalist",
+      "2023/12 OSAKA Kids Programming Contest 2023 Grand Prize",
+      "2024/02 Tech Kids Grand Prix 2023 Grand Prize",
+      "2024/10 Passed IT Passport Examination"
+    ]
+  }
+}

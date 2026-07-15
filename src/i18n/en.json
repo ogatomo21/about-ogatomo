@@ -1,0 +1,131 @@
+{
+    "lang": "en",
+    "locale": "en_US",
+    "htmlLang": "en",
+    "dir": "ltr",
+    "meta": {
+        "title": "about.ogatomo | Tomoya Ogawa",
+        "description": "This is the portfolio of Tomoya Ogawa, a 9th-grade programmer and blogger. It introduces his profile, background, projects, and skills.",
+        "ogTitle": "about.ogatomo | Tomoya Ogawa",
+        "ogDescription": "The portfolio of Tomoya Ogawa, a 9th-grade programmer and blogger. It summarizes his profile, projects, and background.",
+        "twitterDescription": "The portfolio of Tomoya Ogawa, a 9th-grade programmer and blogger."
+    },
+    "nav": {
+        "aria": "Site navigation",
+        "home": "Home",
+        "works": "Works",
+        "contact": "Contact",
+        "menuOpen": "Open menu",
+        "menuClose": "Close menu"
+    },
+    "langSwitch": {
+        "aria": "Language",
+        "ja": "日本語",
+        "en": "English"
+    },
+    "theme": {
+        "aria": "Color theme",
+        "system": "System",
+        "systemAria": "Match system setting",
+        "light": "Light",
+        "lightAria": "Light mode",
+        "dark": "Dark",
+        "darkAria": "Dark mode"
+    },
+    "hero": {
+        "aria": "Hero",
+        "kicker": "about.ogatomo | PORTFOLIO",
+        "nameEn": "Tomoya Ogawa",
+        "nameJa": "小川 智也",
+        "tagline": "Programmer / Blogger / Student",
+        "subtitle": "9th grade · Founder of OgaTomo Systems",
+        "blog": "Tomoyan's Blog",
+        "github": "GitHub",
+        "contact": "Contact",
+        "more": "Learn more"
+    },
+    "about": {
+        "sectionAria": "About and profile",
+        "title": "About",
+        "lead": "Who I am",
+        "p1": "I'm a 14-year-old who loves programming and technology. I build web apps and write tech articles that beginners can follow.",
+        "p2Before": "I started web development in first grade of elementary school, and in 2023 I founded ",
+        "p2After": ", my sole proprietorship.",
+        "p3Before": "Today I work on system development and write for ",
+        "p3Mid": "Tomoyan's Blog",
+        "p3After": ", among other projects.",
+        "p4": "I care about making expert topics clear for beginners — and I'll keep building useful things and sharing what I learn."
+    },
+    "profile": {
+        "title": "Profile",
+        "lead": "Basics",
+        "name": "Name",
+        "nameValue": "Tomoya Ogawa (小川 智也)",
+        "birth": "Date of birth",
+        "birthValue": "October 10, 2011",
+        "location": "Location",
+        "locationValue": "Toyonaka, Osaka, Japan",
+        "trade": "Business name",
+        "tradeNote": "(OgaTomo Systems)",
+        "languages": "Languages",
+        "languagesValue": "Japanese / English (a little)"
+    },
+    "career": {
+        "sectionAria": "Career and skills",
+        "title": "Career",
+        "lead": "My journey so far",
+        "detail": "Read more →"
+    },
+    "skills": {
+        "title": "Skills",
+        "lead": "Strengths, tech stack, and more"
+    },
+    "works": {
+        "title": "Works",
+        "lead": "Apps, extensions, libraries — small tools that make life and learning a bit easier",
+        "leadHome": "Latest works (10 most recent)",
+        "prev": "Previous work",
+        "next": "Next work",
+        "listAria": "Works cards (horizontal scroll)",
+        "listPageAria": "Full list of works",
+        "viewAll": "View all works →",
+        "githubMore": "Browse repositories on GitHub →",
+        "pageTitle": "Works | about.ogatomo",
+        "pageDescription": "Projects by Tomoya Ogawa — apps, extensions, libraries, and more.",
+        "backHome": "Back to home"
+    },
+    "events": {
+        "title": "Events, awards & certifications",
+        "lead": "Contests, recognition, national exams, and more",
+        "prev": "Previous event",
+        "next": "Next event",
+        "listAria": "Events, awards, and certifications (horizontal scroll)",
+        "detail": "Read more →",
+        "kind": {
+            "award": "Award",
+            "qualification": "Cert",
+            "media": "Media",
+            "event": "Event"
+        }
+    },
+    "links": {
+        "title": "Links",
+        "lead": "SNS, blog, and developer profiles"
+    },
+    "cta": {
+        "title": "Get in touch",
+        "body": "For writing, commissions, or other inquiries, please use the contact form on my blog. I'll reply when I can.",
+        "button": "Open contact form"
+    },
+    "footer": {
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "github": "View on GitHub"
+    },
+    "notFound": {
+        "title": "404 Not Found | about.ogatomo",
+        "heading": "Page not found",
+        "body": "The page you are looking for may have moved or been removed. Try starting from the home page.",
+        "home": "Back to home"
+    }
+}
