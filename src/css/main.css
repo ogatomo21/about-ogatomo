@@ -657,16 +657,20 @@ html.theme-switching footer {
    * min-width:0 + overflow:hidden so long English strings clamp (not expand flex item)
    */
   .card-slider-item {
-    flex: 0 0 min(15.5rem, 78%);
-    max-width: 17rem;
+    /* Cap width on small screens so text can clamp (not expand past viewport) */
+    flex: 0 0 min(16.5rem, 82vw);
+    width: min(16.5rem, 82vw);
+    max-width: min(16.5rem, 82vw);
     min-width: 0;
     overflow: hidden;
     scroll-snap-align: start;
+    box-sizing: border-box;
   }
 
   @media (min-width: 640px) {
     .card-slider-item {
       flex: 0 0 calc((100% - 1.25rem) / 2);
+      width: calc((100% - 1.25rem) / 2);
       max-width: none;
     }
   }
@@ -674,18 +678,21 @@ html.theme-switching footer {
   @media (min-width: 900px) {
     .card-slider-item {
       flex: 0 0 calc((100% - 2.5rem) / 3);
+      width: calc((100% - 2.5rem) / 3);
     }
   }
 
   @media (min-width: 1100px) {
     .card-slider-item {
       flex: 0 0 calc((100% - 3.75rem) / 4);
+      width: calc((100% - 3.75rem) / 4);
     }
   }
 
   @media (min-width: 1280px) {
     .card-slider-item {
       flex: 0 0 calc((100% - 5rem) / 5);
+      width: calc((100% - 5rem) / 5);
     }
   }
 
@@ -706,9 +713,12 @@ html.theme-switching footer {
     min-width: 0;
     min-height: 0;
     max-width: 100%;
+    /* Font sizes scale with card width (1–5 cols feel natural) */
+    container-type: inline-size;
+    container-name: media-card;
   }
 
-  /* Works page grid: full width, up to 5 columns */
+  /* Works page grid: 1 → 2 → 3 → 4 → 5 columns by width */
   .works-card-grid {
     display: grid;
     width: 100%;
@@ -720,6 +730,7 @@ html.theme-switching footer {
   @media (min-width: 480px) {
     .works-card-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem;
     }
   }
 
@@ -833,11 +844,13 @@ html.theme-switching footer {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: clamp(0.2rem, 1.5cqi, 0.4rem);
     min-width: 0;
     min-height: 0;
     width: 100%;
-    padding: 0.85rem 1rem 1rem;
+    max-width: 100%;
+    padding: clamp(0.55rem, 4cqi, 1rem) clamp(0.6rem, 4.5cqi, 1.05rem)
+      clamp(0.6rem, 4cqi, 1rem);
     overflow: hidden;
     box-sizing: border-box;
   }
@@ -846,39 +859,49 @@ html.theme-switching footer {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.3rem 0.45rem;
+    gap: clamp(0.15rem, 1.2cqi, 0.4rem) clamp(0.25rem, 1.8cqi, 0.5rem);
     flex-shrink: 0;
     max-width: 100%;
     min-width: 0;
+  }
+
+  /* Badge + date track card size (override Tailwind text-xs) */
+  .media-card__meta > span,
+  .media-card__meta > time {
+    font-size: clamp(0.62rem, 2.8cqi + 0.35rem, 0.75rem);
+    line-height: 1.25;
+  }
+
+  .media-card__meta > span {
+    padding: clamp(0.1rem, 0.8cqi, 0.2rem) clamp(0.4rem, 2.2cqi, 0.65rem);
   }
 
   .media-card__meta > time {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: 0;
   }
 
   /*
-   * Multi-line ellipsis for titles/descriptions.
-   * - min-width:0 keeps EN long words from blowing out flex width
-   * - max-height backup if -webkit-line-clamp is flaky
-   * - do NOT use the `line-clamp` shorthand (can zero-out text in some engines)
-   * - do NOT use flex:1 1 0 on clamped boxes (height can collapse to 0)
+   * Type scales with card width (cqi), not a single fixed rem.
+   * Ellipsis: pure text + -webkit-line-clamp (no line-clamp shorthand).
    */
   .media-card__title {
     margin: 0;
-    flex-shrink: 0;
+    flex: 0 0 auto;
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    font-size: 1rem;
+    font-size: clamp(0.82rem, 4.2cqi + 0.35rem, 1.125rem);
     font-weight: 700;
-    line-height: 1.35;
-    max-height: calc(1.35em * 2);
+    line-height: 1.3;
+    max-height: calc(1.3em * 2);
     color: rgb(var(--c-light));
     overflow: hidden;
-    overflow-wrap: anywhere;
+    text-overflow: ellipsis;
     word-break: break-word;
+    overflow-wrap: break-word;
     display: -webkit-box;
     /*! autoprefixer: ignore next */
     -webkit-box-orient: vertical;
@@ -891,26 +914,35 @@ html.theme-switching footer {
 
   .media-card__desc {
     margin: 0;
-    flex-shrink: 1;
+    flex: 0 1 auto;
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    max-height: calc(1.5em * 3);
+    font-size: clamp(0.72rem, 3.2cqi + 0.32rem, 0.9375rem);
+    line-height: 1.45;
+    max-height: calc(1.45em * 3);
     color: rgb(var(--c-text) / 0.9);
     overflow: hidden;
-    overflow-wrap: anywhere;
+    text-overflow: ellipsis;
     word-break: break-word;
+    overflow-wrap: break-word;
     display: -webkit-box;
     /*! autoprefixer: ignore next */
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
 
+  /* Narrow cards (many columns / small phones): fewer desc lines */
+  @container media-card (max-width: 11.5rem) {
+    .media-card__desc {
+      -webkit-line-clamp: 2;
+      max-height: calc(1.45em * 2);
+    }
+  }
+
   .media-card__body:has(.media-card__more) .media-card__desc {
     -webkit-line-clamp: 2;
-    max-height: calc(1.5em * 2);
+    max-height: calc(1.45em * 2);
   }
 
   .media-card__more {
@@ -918,8 +950,9 @@ html.theme-switching footer {
     margin-top: auto;
     flex-shrink: 0;
     max-width: 100%;
-    padding-top: 0.15rem;
-    font-size: 0.875rem;
+    min-width: 0;
+    padding-top: 0.1rem;
+    font-size: clamp(0.7rem, 3cqi + 0.3rem, 0.875rem);
     font-weight: 600;
     color: rgb(var(--c-light));
     overflow: hidden;

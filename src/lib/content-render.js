@@ -197,7 +197,8 @@ function renderSquareMediaCard({
 
 function renderWorkCard(item, locale, { list = false } = {}) {
   const badge = TYPE_BADGE[item.type] || "bg-panel text-ink";
-  const desc = escapeHtml(L(item.description, locale)).replace(/\n/g, "<br>");
+  // Single paragraph (no <br>) so -webkit-line-clamp can show “…” on mobile WebKit
+  const desc = escapeHtml(L(item.description, locale)).replace(/\s*\n\s*/g, " ");
   const title = escapeHtml(L(item.title, locale));
   const typeLabel = item.type || "Work";
 
@@ -281,7 +282,8 @@ export function renderEvents(events, locale, dict) {
       const kindClass = KIND_CLASS[item.kind] || KIND_CLASS.event;
       const kindLabel = kindLabels[item.kind] || kindLabels.event || item.kind;
       const title = escapeHtml(L(item.title, locale));
-      const desc = escapeHtml(L(item.description, locale));
+      // No <br>: multi-line clamp + ellipsis needs a single text run
+      const desc = escapeHtml(L(item.description, locale)).replace(/\s*\n\s*/g, " ");
 
       return renderSquareMediaCard({
         href: item.url || null,
