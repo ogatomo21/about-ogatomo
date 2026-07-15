@@ -2,7 +2,7 @@
   "name": "about-ogatomo",
   "version": "2.0.0",
   "private": true,
-  "description": "Tomoya Ogawa (小川 智也) portfolio site — about.ogatomo.net",
+  "description": "Tomoya Ogawa (小川 智也) portfolio site — about.ogtm.dev",
   "scripts": {
     "images": "node scripts/optimize-images.mjs",
     "inject": "node scripts/inject-data.mjs",

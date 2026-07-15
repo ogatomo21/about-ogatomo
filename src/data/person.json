@@ -51,11 +51,11 @@
     "https://ogatomo.net",
     "https://systems.ogatomo.net"
   ],
-  "url": "https://about.ogatomo.net",
+  "url": "https://about.ogtm.dev",
   "image": {
     "@type": "ImageObject",
-    "url": "https://about.ogatomo.net/images/profile-ogp.webp",
-    "contentUrl": "https://about.ogatomo.net/images/profile-ogp.webp",
+    "url": "https://about.ogtm.dev/images/profile-ogp.webp",
+    "contentUrl": "https://about.ogtm.dev/images/profile-ogp.webp",
     "width": 1200,
     "height": 630,
     "caption": {

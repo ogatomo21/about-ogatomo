@@ -184,7 +184,7 @@ function applyLanguageCore(locale, { updateUrl = true } = {}) {
         ? `./404.${locale}.html`
         : `./index.${locale}.html`;
   const canonicalFile = path.replace(/^\.\//, "");
-  const canonical = `https://about.ogatomo.net/${canonicalFile}`;
+  const canonical = `https://about.ogtm.dev/${canonicalFile}`;
   setMeta('link[rel="canonical"]', "href", canonical);
   setMeta('meta[property="og:url"]', "content", canonical);
 

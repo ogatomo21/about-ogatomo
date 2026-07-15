@@ -1,6 +1,6 @@
 # about-ogatomo
 
-[about.ogatomo.net](https://about.ogatomo.net) — 小川 智也（Tomoya Ogawa）のポートフォリオサイト。
+[about.ogtm.dev](https://about.ogtm.dev) — 小川 智也（Tomoya Ogawa）のポートフォリオサイト。
 
 ## 概要
 
@@ -34,14 +34,6 @@ npm run preview  # ビルド結果の確認
 | スタイル | `src/css/main.css` / Tailwind クラス |
 
 変更後は `npm run build`（または `dev`）で反映を確認してください。
-
-## デプロイ
-
-1. `main` に push
-2. GitHub Actions（`.github/workflows/deploy.yml`）が `npm run build` → `gh-pages` へ公開
-3. リポジトリ Settings → Pages → Source を **`gh-pages` / root** に設定
-
-カスタムドメイン: `about.ogatomo.net`（`public/CNAME`）
 
 ## ライセンス
 

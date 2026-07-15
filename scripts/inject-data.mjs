@@ -32,7 +32,7 @@ const I18N = path.join(SRC, "i18n");
 const OUT = path.join(ROOT, ".tmp");
 
 const LOCALES = ["ja", "en"];
-const SITE = "https://about.ogatomo.net";
+const SITE = "https://about.ogtm.dev";
 
 const GENERATED_HTML = [
   "index.html",
