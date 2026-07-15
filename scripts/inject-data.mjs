@@ -144,7 +144,6 @@ function buildRedirectHtml() {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>about.ogatomo</title>
-  <meta name="robots" content="noindex">
   <meta name="theme-color" content="#7086bd" id="meta-theme-color">
   <link rel="icon" href="./favicon.ico">
   <link rel="alternate" hreflang="ja" href="${SITE}/index.ja.html">
