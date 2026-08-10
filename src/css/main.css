@@ -8,7 +8,7 @@
  */
 :root {
   color-scheme: light;
-  --c-primary: 112 134 189; /* #7086BD */
+  --c-primary: 80 104 162; /* #5068A2 */
   --c-secondary: 67 80 113; /* #435071 — muted text / accents */
   --c-tertiary: 226 230 241; /* #E2E6F1 — borders, chips, alt sections */
   --c-text: 51 51 51; /* #333333 */
@@ -16,8 +16,11 @@
   --c-page: 255 255 255;
   --c-panel: 67 80 113; /* solid navy (CTA) */
   --c-danger: 235 35 35;
-  --c-light: 35 122 235;
-  --c-green: 40 184 74;
+  --c-light: 27 104 197; /* #1B68C5 */
+  --c-green: 21 126 54; /* #157E36 */
+  --c-on-primary: 255 255 255;
+  --c-on-light: 255 255 255;
+  --c-on-green: 255 255 255;
   --c-border: 214 220 232; /* card edges (slightly softer than tertiary) */
   --shadow-card: 0 4px 20px rgba(67, 80, 113, 0.08);
   --shadow-card-hover: 0 10px 28px rgba(67, 80, 113, 0.14);
@@ -35,15 +38,18 @@
  */
 html.dark {
   color-scheme: dark;
-  --c-primary: 138 159 212;
+  --c-primary: 141 169 232;
   --c-secondary: 168 176 196;
   --c-tertiary: 48 54 72; /* chips + alt section tint */
   --c-text: 232 234 240;
   --c-surface: 34 38 54; /* elevated cards (lighter than page) */
   --c-page: 15 17 24;
   --c-panel: 52 60 84;
-  --c-light: 96 165 250;
-  --c-green: 74 222 128;
+  --c-light: 122 170 255;
+  --c-green: 110 225 151;
+  --c-on-primary: 15 17 24;
+  --c-on-light: 15 17 24;
+  --c-on-green: 15 17 24;
   --c-border: 58 66 88;
   --shadow-card: 0 4px 22px rgba(0, 0, 0, 0.4);
   --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.5);
@@ -329,13 +335,13 @@ html.theme-switching footer {
   .site-nav-btn.site-nav-btn--primary {
     background: rgb(var(--c-primary) / 1);
     border-color: rgb(var(--c-primary) / 1);
-    color: #fff;
+    color: rgb(var(--c-on-primary));
   }
 
   .site-nav-btn.site-nav-btn--primary:hover {
     background: rgb(var(--c-panel) / 1);
     border-color: rgb(var(--c-panel) / 1);
-    color: #fff;
+    color: rgb(var(--c-on-primary));
   }
 
   .header-tools {
@@ -404,13 +410,13 @@ html.theme-switching footer {
     .site-nav-btn.site-nav-btn--primary {
       background: rgb(var(--c-primary) / 1);
       border-color: rgb(var(--c-primary) / 1);
-      color: #fff;
+      color: rgb(var(--c-on-primary));
     }
 
     .site-nav-btn.site-nav-btn--primary:hover {
       background: rgb(var(--c-panel) / 1);
       border-color: rgb(var(--c-panel) / 1);
-      color: #fff;
+      color: rgb(var(--c-on-primary));
     }
 
     .header-tools {
@@ -587,6 +593,24 @@ html.theme-switching footer {
       transition: none !important;
     }
 
+    .site-header,
+    .site-header-inner,
+    .site-nav-btn,
+    .btn-primary,
+    .btn-outline,
+    .slider-btn,
+    .content-card,
+    .content-card--link,
+    .media-card__media img,
+    .skill-chip,
+    .card-slider-track {
+      transition: none !important;
+    }
+
+    .card-slider-track {
+      scroll-behavior: auto;
+    }
+
     ::view-transition-old(root),
     ::view-transition-new(root) {
       animation: none !important;
@@ -594,7 +618,7 @@ html.theme-switching footer {
   }
 
   .section-pad {
-    @apply px-4 py-16 sm:px-6 lg:px-8;
+    @apply px-5 py-16 sm:px-7 lg:px-9;
   }
 
   .section-inner {
@@ -610,7 +634,7 @@ html.theme-switching footer {
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-panel focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
+    @apply inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary transition hover:bg-panel focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
   }
 
   .btn-outline {
@@ -698,6 +722,18 @@ html.theme-switching footer {
 
   .slider-btn {
     @apply inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-secondary shadow-sm transition hover:border-primary hover:bg-tertiary/50 hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .slider-toggle-icon--play {
+    display: none;
+  }
+
+  [data-slider-paused="true"] .slider-toggle-icon--pause {
+    display: none;
+  }
+
+  [data-slider-paused="true"] .slider-toggle-icon--play {
+    display: block;
   }
 
   /*
@@ -849,8 +885,9 @@ html.theme-switching footer {
     min-height: 0;
     width: 100%;
     max-width: 100%;
+    padding: 0.75rem 0.75rem 1.25rem;
     padding: clamp(0.55rem, 4cqi, 1rem) clamp(0.6rem, 4.5cqi, 1.05rem)
-      clamp(0.6rem, 4cqi, 1rem);
+      clamp(1.1rem, 6cqi, 1.5rem);
     overflow: hidden;
     box-sizing: border-box;
   }
@@ -900,8 +937,9 @@ html.theme-switching footer {
     color: rgb(var(--c-light));
     overflow: hidden;
     text-overflow: ellipsis;
-    word-break: break-word;
-    overflow-wrap: break-word;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
     display: -webkit-box;
     /*! autoprefixer: ignore next */
     -webkit-box-orient: vertical;
@@ -924,16 +962,30 @@ html.theme-switching footer {
     color: rgb(var(--c-text) / 0.9);
     overflow: hidden;
     text-overflow: ellipsis;
-    word-break: break-word;
-    overflow-wrap: break-word;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
     display: -webkit-box;
     /*! autoprefixer: ignore next */
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
 
-  /* Narrow cards (many columns / small phones): fewer desc lines */
-  @container media-card (max-width: 11.5rem) {
+  /* The square body has less vertical room on phones; keep the ellipsis visible. */
+  @media (max-width: 639px) {
+    .media-card__desc {
+      -webkit-line-clamp: 2;
+      max-height: calc(1.45em * 2);
+    }
+  }
+
+  /* Narrow cards (many columns / small phones): reserve room for bottom padding. */
+  @container media-card (max-width: 15rem) {
+    .media-card__title {
+      -webkit-line-clamp: 1;
+      max-height: 1.3em;
+    }
+
     .media-card__desc {
       -webkit-line-clamp: 2;
       max-height: calc(1.45em * 2);

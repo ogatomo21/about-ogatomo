@@ -11,15 +11,15 @@
   <link rel="alternate" hreflang="x-default" href="{{page.hreflangJa}}">
   <meta property="og:title" content="{{meta.ogTitle}}">
   <meta property="og:description" content="{{meta.ogDescription}}">
-  <meta property="og:image" content="https://about.ogtm.dev/images/profile-ogp.webp">
+  <meta property="og:image" content="https://about.ogtm.dev/images/profile-ogp.png">
   <meta property="og:url" content="{{page.ogUrl}}">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="{{page.ogLocale}}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{{meta.ogTitle}}">
   <meta name="twitter:description" content="{{meta.twitterDescription}}">
-  <meta name="twitter:image" content="https://about.ogtm.dev/images/profile-ogp.webp">
-  <meta name="theme-color" content="#7086bd" id="meta-theme-color">
+  <meta name="twitter:image" content="https://about.ogtm.dev/images/profile-ogp.png">
+  <meta name="theme-color" content="#5068a2" id="meta-theme-color">
   <link rel="icon" href="./favicon.ico">
   <!-- Apply theme before paint to avoid flash (system / light / dark) -->
   <script>
@@ -35,7 +35,7 @@
         document.documentElement.classList.toggle("dark", dark);
         document.documentElement.dataset.theme = t;
         var meta = document.getElementById("meta-theme-color");
-        if (meta) meta.setAttribute("content", dark ? "#12141c" : "#7086bd");
+        if (meta) meta.setAttribute("content", dark ? "#0f1118" : "#5068a2");
       } catch (e) {}
     })();
   </script>
@@ -166,7 +166,7 @@
       data-i18n-attr="aria-label:hero.aria"
       aria-label="{{hero.aria}}"
     >
-      <!-- CSS image-set can pull multiple formats; <picture> loads only one -->
+      <!-- <picture> selects one supported image format -->
       <picture class="hero-bg" aria-hidden="true">
         <source type="image/avif" srcset="/images/header.avif" />
         <source type="image/webp" srcset="/images/header.webp" />
@@ -304,12 +304,16 @@
             <h2 class="section-title" data-i18n="works.title">{{works.title}}</h2>
             <p class="mt-1 max-w-2xl text-sm leading-relaxed text-secondary/90 sm:text-base" data-i18n="works.leadHome">{{works.leadHome}}</p>
           </div>
-          <div class="hidden gap-2 md:flex" data-slider-controls="works-slider">
-            <button type="button" class="slider-btn" data-slider-prev aria-controls="works-slider-track" data-i18n-attr="aria-label:works.prev" aria-label="{{works.prev}}">
+          <div class="flex gap-2" data-slider-controls="works-slider">
+            <button type="button" class="slider-btn hidden md:inline-flex" data-slider-prev aria-controls="works-slider-track" data-i18n-attr="aria-label:works.prev" aria-label="{{works.prev}}">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            <button type="button" class="slider-btn" data-slider-next aria-controls="works-slider-track" data-i18n-attr="aria-label:works.next" aria-label="{{works.next}}">
+            <button type="button" class="slider-btn hidden md:inline-flex" data-slider-next aria-controls="works-slider-track" data-i18n-attr="aria-label:works.next" aria-label="{{works.next}}">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="slider-btn" data-slider-toggle data-slider-label-key="works" aria-controls="works-slider-track" aria-pressed="false" data-slider-paused="false" data-i18n-attr="aria-label:works.pause,title:works.pause" aria-label="{{works.pause}}" title="{{works.pause}}">
+              <svg class="slider-toggle-icon slider-toggle-icon--pause h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+              <svg class="slider-toggle-icon slider-toggle-icon--play h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m8 5 11 7-11 7V5z" fill="currentColor"/></svg>
             </button>
           </div>
         </div>
@@ -336,12 +340,16 @@
             <h2 class="section-title" data-i18n="events.title">{{events.title}}</h2>
             <p class="mt-1 max-w-2xl text-sm leading-relaxed text-secondary/90 sm:text-base" data-i18n="events.lead">{{events.lead}}</p>
           </div>
-          <div class="hidden gap-2 md:flex" data-slider-controls="events-slider">
-            <button type="button" class="slider-btn" data-slider-prev aria-controls="events-slider-track" data-i18n-attr="aria-label:events.prev" aria-label="{{events.prev}}">
+          <div class="flex gap-2" data-slider-controls="events-slider">
+            <button type="button" class="slider-btn hidden md:inline-flex" data-slider-prev aria-controls="events-slider-track" data-i18n-attr="aria-label:events.prev" aria-label="{{events.prev}}">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
-            <button type="button" class="slider-btn" data-slider-next aria-controls="events-slider-track" data-i18n-attr="aria-label:events.next" aria-label="{{events.next}}">
+            <button type="button" class="slider-btn hidden md:inline-flex" data-slider-next aria-controls="events-slider-track" data-i18n-attr="aria-label:events.next" aria-label="{{events.next}}">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button type="button" class="slider-btn" data-slider-toggle data-slider-label-key="events" aria-controls="events-slider-track" aria-pressed="false" data-slider-paused="false" data-i18n-attr="aria-label:events.pause,title:events.pause" aria-label="{{events.pause}}" title="{{events.pause}}">
+              <svg class="slider-toggle-icon slider-toggle-icon--pause h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+              <svg class="slider-toggle-icon slider-toggle-icon--play h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m8 5 11 7-11 7V5z" fill="currentColor"/></svg>
             </button>
           </div>
         </div>

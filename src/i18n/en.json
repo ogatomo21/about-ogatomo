@@ -86,6 +86,8 @@
         "leadHome": "Latest works (10 most recent)",
         "prev": "Previous work",
         "next": "Next work",
+        "pause": "Pause automatic work rotation",
+        "resume": "Resume automatic work rotation",
         "listAria": "Works cards (horizontal scroll)",
         "listPageAria": "Full list of works",
         "viewAll": "View all works →",
@@ -99,6 +101,8 @@
         "lead": "Contests, recognition, national exams, and more",
         "prev": "Previous event",
         "next": "Next event",
+        "pause": "Pause automatic event rotation",
+        "resume": "Resume automatic event rotation",
         "listAria": "Events, awards, and certifications (horizontal scroll)",
         "detail": "Read more →",
         "kind": {

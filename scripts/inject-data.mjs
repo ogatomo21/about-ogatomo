@@ -22,6 +22,7 @@ import {
   personJsonLdString,
   WORKS_HOME_LIMIT,
 } from "../src/lib/content-render.js";
+import { validateProjectData } from "./validate-data.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -47,10 +48,6 @@ const GENERATED_HTML = [
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
-}
-
-function readData(name) {
-  return readJson(path.join(DATA, name));
 }
 
 function readDict(locale) {
@@ -131,7 +128,7 @@ function injectMarkers(template, replacements) {
       }
     }
     if (!found) {
-      console.warn(`[inject-data] marker not found: inject:${key}`);
+      throw new Error(`[inject-data] marker not found: inject:${key}`);
     }
   }
   return html;
@@ -144,7 +141,7 @@ function buildRedirectHtml() {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>about.ogatomo</title>
-  <meta name="theme-color" content="#7086bd" id="meta-theme-color">
+  <meta name="theme-color" content="#5068a2" id="meta-theme-color">
   <link rel="icon" href="./favicon.ico">
   <link rel="alternate" hreflang="ja" href="${SITE}/index.ja.html">
   <link rel="alternate" hreflang="en" href="${SITE}/index.en.html">
@@ -161,7 +158,7 @@ function buildRedirectHtml() {
             window.matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.classList.toggle("dark", dark);
         var meta = document.getElementById("meta-theme-color");
-        if (meta) meta.setAttribute("content", dark ? "#12141c" : "#7086bd");
+        if (meta) meta.setAttribute("content", dark ? "#0f1118" : "#5068a2");
       } catch (e) {}
       try {
         var key = "about-ogatomo-lang";
@@ -172,30 +169,29 @@ function buildRedirectHtml() {
           var nav = (navigator.language || navigator.userLanguage || "ja").toLowerCase();
           lang = nav.indexOf("ja") === 0 ? "ja" : "en";
         }
-        // Relative so this works under a subdirectory
-        var dest = "./index." + lang + ".html" + (location.search || "") + (location.hash || "");
+        var dest = "/index." + lang + ".html" + (location.search || "") + (location.hash || "");
         location.replace(dest);
       } catch (e) {
-        location.replace("./index.ja.html");
+        location.replace("/index.ja.html");
       }
     })();
   </script>
   <noscript>
-    <meta http-equiv="refresh" content="0;url=./index.ja.html">
+    <meta http-equiv="refresh" content="0;url=/index.ja.html">
   </noscript>
   <style>
     body { margin: 0; font-family: sans-serif; background: #fff; color: #333; }
     html.dark body { background: #0f1118; color: #e8eaf0; }
     .wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; text-align: center; }
-    a { color: #237aeb; }
+    a { color: #1b68c5; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <p>
       Redirecting…<br>
-      <a href="./index.ja.html">日本語</a> ·
-      <a href="./index.en.html">English</a>
+      <a href="/index.ja.html">日本語</a> ·
+      <a href="/index.en.html">English</a>
     </p>
   </div>
 </body>
@@ -222,16 +218,16 @@ function build404RedirectHtml() {
           var nav = (navigator.language || "ja").toLowerCase();
           lang = nav.indexOf("ja") === 0 ? "ja" : "en";
         }
-        location.replace("./404." + lang + ".html");
+        location.replace("/404." + lang + ".html");
       } catch (e) {
-        location.replace("./404.ja.html");
+        location.replace("/404.ja.html");
       }
     })();
   </script>
-  <noscript><meta http-equiv="refresh" content="0;url=./404.ja.html"></noscript>
+  <noscript><meta http-equiv="refresh" content="0;url=/404.ja.html"></noscript>
 </head>
 <body>
-  <p><a href="./404.ja.html">日本語</a> · <a href="./404.en.html">English</a></p>
+  <p><a href="/404.ja.html">日本語</a> · <a href="/404.en.html">English</a></p>
 </body>
 </html>
 `;
@@ -266,17 +262,21 @@ function writeIfChanged(filePath, content) {
   return true;
 }
 
+function assertResolved(html, label) {
+  if (/\{\{\{?/.test(html)) {
+    throw new Error(`[inject-data] unresolved placeholder in ${label}`);
+  }
+}
+
 function runInject(opts = {}) {
   const { forceLog = false } = opts;
   fs.mkdirSync(OUT, { recursive: true });
 
-  const worksAll = sortWorksByDateDesc(readData("works.json"));
+  const projectData = validateProjectData();
+
+  const { works, links, skills, career, events, person } = projectData;
+  const worksAll = sortWorksByDateDesc(works);
   const worksHome = worksAll.slice(0, WORKS_HOME_LIMIT);
-  const links = readData("links.json");
-  const skills = readData("skills.json");
-  const career = readData("career.json");
-  const events = readData("events.json");
-  const person = readData("person.json");
 
   const indexSrc = fs.readFileSync(path.join(SRC, "index.html"), "utf8");
   const worksSrc = fs.readFileSync(path.join(SRC, "works.html"), "utf8");
@@ -297,6 +297,7 @@ function runInject(opts = {}) {
 
     let page = injectMarkers(indexSrc, indexReplacements);
     page = applyDict(page, dict, locale, "index", person);
+    assertResolved(page, `index.${locale}.html`);
     if (writeIfChanged(path.join(OUT, `index.${locale}.html`), page)) {
       anyChanged = true;
     }
@@ -305,11 +306,13 @@ function runInject(opts = {}) {
       "works-all": renderWorksList(worksAll, locale),
     });
     worksPage = applyDict(worksPage, dict, locale, "works", person);
+    assertResolved(worksPage, `works.${locale}.html`);
     if (writeIfChanged(path.join(OUT, `works.${locale}.html`), worksPage)) {
       anyChanged = true;
     }
 
     let page404 = applyDict(notFoundSrc, dict, locale, "404", person);
+    assertResolved(page404, `404.${locale}.html`);
     if (writeIfChanged(path.join(OUT, `404.${locale}.html`), page404)) {
       anyChanged = true;
     }

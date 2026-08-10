@@ -15,6 +15,9 @@ module.exports = {
         danger: "rgb(var(--c-danger) / <alpha-value>)",
         light: "rgb(var(--c-light) / <alpha-value>)",
         green: "rgb(var(--c-green) / <alpha-value>)",
+        "on-primary": "rgb(var(--c-on-primary) / <alpha-value>)",
+        "on-light": "rgb(var(--c-on-light) / <alpha-value>)",
+        "on-green": "rgb(var(--c-on-green) / <alpha-value>)",
         text: "rgb(var(--c-text) / <alpha-value>)",
         /** Card / elevated surfaces (was hard-coded white) */
         surface: "rgb(var(--c-surface) / <alpha-value>)",

@@ -7,7 +7,7 @@
 - **Vite 6** + **Tailwind CSS v3** による静的サイト
 - Works / Links などは `src/data/*.json` で管理し、**ビルド時に HTML へ埋め込み**（実行時 CMS/API なし）
 - 日英対応（`src/i18n/`）。ページ内の言語切替はリロードなし
-- `main` への push で GitHub Actions がビルドし、`gh-pages` ブランチへデプロイ
+- `main` への push で Cloudflare Workers 側の設定がビルドし、`dist/` を配信
 
 ## 開発
 
@@ -33,7 +33,7 @@ npm run preview  # ビルド結果の確認
 | レイアウト | `src/index.html` |
 | スタイル | `src/css/main.css` / Tailwind クラス |
 
-変更後は `npm run build`（または `dev`）で反映を確認してください。
+変更後は `npm run test` と `npm run build`（または `dev`）で反映を確認してください。
 
 ## ライセンス
 

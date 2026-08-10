@@ -6,11 +6,11 @@
   "scripts": {
     "images": "node scripts/optimize-images.mjs",
     "inject": "node scripts/inject-data.mjs",
-    "prebuild": "npm run images && npm run inject",
-    "build": "vite build",
-    "predev": "npm run images && npm run inject",
+    "validate": "node scripts/validate-data.mjs",
+    "build": "vite build && node scripts/check-build.mjs",
     "dev": "vite",
     "preview": "vite preview",
+    "test": "node --test",
     "clean": "node -e \"const fs=require('fs');const path=require('path');const root=process.cwd();['dist','.tmp'].forEach(d=>{try{fs.rmSync(path.join(root,d),{recursive:true,force:true})}catch(e){}})\""
   },
   "engines": {

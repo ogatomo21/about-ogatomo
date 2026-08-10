@@ -1,5 +1,5 @@
 import "../css/main.css";
-import { initLangMenu } from "./i18n-runtime.js";
+import { getCurrentLang, getDict, initLangMenu } from "./i18n-runtime.js";
 
 const THEME_KEY = "about-ogatomo-theme";
 const THEME_OPTS = ["system", "light", "dark"];
@@ -50,7 +50,7 @@ function applyThemeCore(theme) {
     /* ignore */
   }
   const meta = document.getElementById("meta-theme-color");
-  if (meta) meta.setAttribute("content", dark ? "#12141c" : "#7086bd");
+  if (meta) meta.setAttribute("content", dark ? "#0f1118" : "#5068a2");
 
   document.querySelectorAll("[data-theme-opt]").forEach((btn) => {
     const on = btn.getAttribute("data-theme-opt") === mode;
@@ -140,7 +140,7 @@ function softScrollTo(el, { updateHash = true, hash = null } = {}) {
 
   window.scrollTo({
     top: Math.max(0, top),
-    behavior: "smooth",
+    behavior: prefersReducedMotion() ? "auto" : "smooth",
   });
 
   if (updateHash && hash != null && history.replaceState) {
@@ -188,6 +188,8 @@ function initHeaderMenu() {
       root.classList.toggle("is-menu-open", open);
       document.body.classList.toggle("header-menu-open", open);
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      const desktop = window.matchMedia("(min-width: 768px)").matches;
+      panel.setAttribute("aria-hidden", open || desktop ? "false" : "true");
       const ja = document.documentElement.lang === "ja";
       const openText = ja ? "メニューを開く" : "Open menu";
       const closeText = ja ? "メニューを閉じる" : "Close menu";
@@ -208,7 +210,7 @@ function initHeaderMenu() {
       setOpen(!isOpen());
     });
 
-    // Close after choosing a nav item (mobile fullscreen menu)
+    // Close after choosing a nav item on mobile.
     panel.querySelectorAll("a.site-nav-btn").forEach((link) => {
       link.addEventListener("click", () => {
         if (window.matchMedia("(max-width: 767px)").matches) close();
@@ -343,7 +345,13 @@ function initCardSliders() {
 
     const intervalMs = Number(root.getAttribute("data-interval")) || 5000;
     let timerId = null;
-    let userPaused = false;
+    let manualPaused = false;
+    let interactionPaused = false;
+    const toggle =
+      section?.querySelector(`[data-slider-toggle][aria-controls="${track.id}"]`) ||
+      section?.querySelector("[data-slider-toggle]");
+    const labelKey = toggle?.getAttribute("data-slider-label-key");
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     function stepWidth() {
       const item = track.querySelector(".card-slider-item");
@@ -362,15 +370,16 @@ function initCardSliders() {
     }
 
     function go(dir) {
+      const behavior = prefersReducedMotion() ? "auto" : "smooth";
       if (dir > 0 && atEnd()) {
-        track.scrollTo({ left: 0, behavior: "smooth" });
+        track.scrollTo({ left: 0, behavior });
         return;
       }
       if (dir < 0 && atStart()) {
-        track.scrollTo({ left: track.scrollWidth, behavior: "smooth" });
+        track.scrollTo({ left: track.scrollWidth, behavior });
         return;
       }
-      track.scrollBy({ left: dir * stepWidth(), behavior: "smooth" });
+      track.scrollBy({ left: dir * stepWidth(), behavior });
     }
 
     function stopAuto() {
@@ -382,35 +391,64 @@ function initCardSliders() {
 
     function startAuto() {
       stopAuto();
-      if (userPaused || document.hidden) return;
+      if (manualPaused || interactionPaused || prefersReducedMotion() || document.hidden) return;
       if (track.querySelectorAll(".card-slider-item").length < 2) return;
       timerId = window.setInterval(() => {
-        if (!userPaused && !document.hidden) go(1);
+        if (!manualPaused && !interactionPaused && !document.hidden) go(1);
       }, intervalMs);
     }
 
-    function pause() {
-      userPaused = true;
+    function pauseInteraction() {
+      interactionPaused = true;
       stopAuto();
     }
 
-    function resume() {
-      userPaused = false;
+    function resumeInteraction() {
+      interactionPaused = false;
       startAuto();
+    }
+
+    function updateToggle() {
+      if (!toggle) return;
+      const hasAutoPlay = track.querySelectorAll(".card-slider-item").length >= 2;
+      const unavailable = !hasAutoPlay || motionQuery.matches;
+      const state = manualPaused ? "true" : "false";
+      toggle.hidden = unavailable;
+      toggle.setAttribute("aria-hidden", unavailable ? "true" : "false");
+      toggle.setAttribute("aria-pressed", state);
+      toggle.setAttribute("data-slider-paused", state);
+      if (labelKey) {
+        const key = manualPaused ? "resume" : "pause";
+        const label = getDict(getCurrentLang())?.[labelKey]?.[key];
+        if (label) {
+          toggle.setAttribute("aria-label", label);
+          toggle.setAttribute("title", label);
+        }
+        toggle.setAttribute(
+          "data-i18n-attr",
+          `aria-label:${labelKey}.${key},title:${labelKey}.${key}`
+        );
+      }
+    }
+
+    function toggleManualPause() {
+      manualPaused = !manualPaused;
+      if (manualPaused) stopAuto();
+      else startAuto();
+      updateToggle();
     }
 
     const onPrev = () => {
       go(-1);
-      userPaused = false;
       startAuto();
     };
     const onNext = () => {
       go(1);
-      userPaused = false;
       startAuto();
     };
     prev?.addEventListener("click", onPrev);
     next?.addEventListener("click", onNext);
+    toggle?.addEventListener("click", toggleManualPause);
 
     const onKey = (e) => {
       if (e.key === "ArrowRight") {
@@ -428,33 +466,45 @@ function initCardSliders() {
     // Hover / focus pause (include header controls outside the track root)
     const hoverTarget = section || root;
     const onFocusOut = (e) => {
-      if (!hoverTarget.contains(e.relatedTarget)) resume();
+      if (!hoverTarget.contains(e.relatedTarget)) resumeInteraction();
     };
-    hoverTarget.addEventListener("mouseenter", pause);
-    hoverTarget.addEventListener("mouseleave", resume);
-    hoverTarget.addEventListener("focusin", pause);
+    hoverTarget.addEventListener("mouseenter", pauseInteraction);
+    hoverTarget.addEventListener("mouseleave", resumeInteraction);
+    hoverTarget.addEventListener("focusin", pauseInteraction);
     hoverTarget.addEventListener("focusout", onFocusOut);
 
     // Touch / pointer drag: pause while interacting, resume after
     let pointerActive = false;
     const onPointerDown = () => {
       pointerActive = true;
-      pause();
+      pauseInteraction();
     };
     const onPointerUp = () => {
       if (!pointerActive) return;
       pointerActive = false;
-      window.setTimeout(resume, 400);
+      window.setTimeout(resumeInteraction, 400);
     };
     track.addEventListener("pointerdown", onPointerDown, { passive: true });
     window.addEventListener("pointerup", onPointerUp, { passive: true });
 
     const onVis = () => {
       if (document.hidden) stopAuto();
-      else if (!userPaused) startAuto();
+      else if (!manualPaused && !interactionPaused) startAuto();
     };
     document.addEventListener("visibilitychange", onVis);
 
+    const onMotionChange = () => {
+      updateToggle();
+      if (motionQuery.matches) stopAuto();
+      else startAuto();
+    };
+    if (typeof motionQuery.addEventListener === "function") {
+      motionQuery.addEventListener("change", onMotionChange);
+    } else if (typeof motionQuery.addListener === "function") {
+      motionQuery.addListener(onMotionChange);
+    }
+
+    updateToggle();
     startAuto();
 
     sliderCleanups.push(() => {
@@ -462,13 +512,19 @@ function initCardSliders() {
       prev?.removeEventListener("click", onPrev);
       next?.removeEventListener("click", onNext);
       track.removeEventListener("keydown", onKey);
-      hoverTarget.removeEventListener("mouseenter", pause);
-      hoverTarget.removeEventListener("mouseleave", resume);
-      hoverTarget.removeEventListener("focusin", pause);
+      hoverTarget.removeEventListener("mouseenter", pauseInteraction);
+      hoverTarget.removeEventListener("mouseleave", resumeInteraction);
+      hoverTarget.removeEventListener("focusin", pauseInteraction);
       hoverTarget.removeEventListener("focusout", onFocusOut);
       track.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointerup", onPointerUp);
       document.removeEventListener("visibilitychange", onVis);
+      toggle?.removeEventListener("click", toggleManualPause);
+      if (typeof motionQuery.removeEventListener === "function") {
+        motionQuery.removeEventListener("change", onMotionChange);
+      } else if (typeof motionQuery.removeListener === "function") {
+        motionQuery.removeListener(onMotionChange);
+      }
     });
   });
 }

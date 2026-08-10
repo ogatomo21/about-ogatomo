@@ -6,8 +6,15 @@
   <title>{{notFound.title}}</title>
   <meta name="description" content="{{notFound.body}}">
   <meta name="robots" content="noindex">
-  <link rel="canonical" href="https://about.ogtm.dev/">
-  <meta name="theme-color" content="#7086bd" id="meta-theme-color">
+  <link rel="canonical" href="{{page.canonical}}">
+  <meta property="og:title" content="{{notFound.title}}">
+  <meta property="og:description" content="{{notFound.body}}">
+  <meta property="og:url" content="{{page.ogUrl}}">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{notFound.title}}">
+  <meta name="twitter:description" content="{{notFound.body}}">
+  <meta name="theme-color" content="#5068a2" id="meta-theme-color">
   <link rel="icon" href="./favicon.ico">
   <script>
     (function () {
@@ -22,12 +29,12 @@
         document.documentElement.classList.toggle("dark", dark);
         document.documentElement.dataset.theme = t;
         var meta = document.getElementById("meta-theme-color");
-        if (meta) meta.setAttribute("content", dark ? "#12141c" : "#7086bd");
+        if (meta) meta.setAttribute("content", dark ? "#0f1118" : "#5068a2");
       } catch (e) {}
     })();
   </script>
 </head>
-<body class="flex min-h-screen flex-col bg-page text-text" data-locale="{{page.locale}}">
+<body class="flex min-h-screen flex-col bg-page text-text" data-locale="{{page.locale}}" data-page="404">
   <main class="section-inner section-pad flex flex-1 flex-col justify-center">
     <p class="mb-2 text-sm font-semibold uppercase tracking-widest text-primary">Error 404</p>
     <h1 class="mb-4 text-3xl font-bold sm:text-4xl" data-i18n="notFound.heading">{{notFound.heading}}</h1>

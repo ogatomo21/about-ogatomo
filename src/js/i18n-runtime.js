@@ -146,8 +146,15 @@ function applyLanguageCore(locale, { updateUrl = true } = {}) {
         ? "404"
         : "index");
 
-  // Document meta (works page has its own title/description keys)
-  if (pageKind === "works" && dict.works) {
+  // Document meta (works and 404 pages have page-specific strings).
+  if (pageKind === "404" && dict.notFound) {
+    document.title = dict.notFound.title;
+    setMeta('meta[name="description"]', "content", dict.notFound.body);
+    setMeta('meta[property="og:title"]', "content", dict.notFound.title);
+    setMeta('meta[property="og:description"]', "content", dict.notFound.body);
+    setMeta('meta[name="twitter:title"]', "content", dict.notFound.title);
+    setMeta('meta[name="twitter:description"]', "content", dict.notFound.body);
+  } else if (pageKind === "works" && dict.works) {
     document.title = dict.works.pageTitle || dict.meta?.title;
     setMeta('meta[name="description"]', "content", dict.works.pageDescription);
     setMeta('meta[property="og:title"]', "content", dict.works.pageTitle);
@@ -292,14 +299,16 @@ export function initLangMenu({ afterApply } = {}) {
     const trigger = root.querySelector("[data-lang-trigger]");
     const panel = root.querySelector("[data-lang-panel]");
     if (!trigger || !panel) return;
+    const options = [...panel.querySelectorAll("[data-lang-opt]")];
 
     // CSS handles open/close animation via .is-open (no [hidden] flash)
     panel.removeAttribute("hidden");
 
-    const close = () => {
+    const close = ({ restoreFocus = false } = {}) => {
       trigger.setAttribute("aria-expanded", "false");
       root.classList.remove("is-open");
       panel.setAttribute("aria-hidden", "true");
+      if (restoreFocus) trigger.focus();
     };
 
     const open = () => {
@@ -315,6 +324,13 @@ export function initLangMenu({ afterApply } = {}) {
       else open();
     };
 
+    const focusSelected = () => {
+      const selected = options.findIndex(
+        (option) => option.getAttribute("aria-selected") === "true"
+      );
+      options[Math.max(0, selected)]?.focus();
+    };
+
     close();
 
     trigger.addEventListener("click", (e) => {
@@ -322,7 +338,18 @@ export function initLangMenu({ afterApply } = {}) {
       toggle();
     });
 
-    panel.querySelectorAll("[data-lang-opt]").forEach((btn) => {
+    trigger.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        open();
+        focusSelected();
+      } else if (e.key === "Escape" && isOpen()) {
+        e.preventDefault();
+        close({ restoreFocus: true });
+      }
+    });
+
+    options.forEach((btn, index) => {
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -331,6 +358,23 @@ export function initLangMenu({ afterApply } = {}) {
         close();
         if (lang === currentLang) return;
         void applyLanguage(lang, { updateUrl: true, isSwitch: true });
+      });
+
+      btn.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+          e.preventDefault();
+          const delta = e.key === "ArrowDown" ? 1 : -1;
+          options[(index + delta + options.length) % options.length]?.focus();
+        } else if (e.key === "Home" || e.key === "End") {
+          e.preventDefault();
+          options[e.key === "Home" ? 0 : options.length - 1]?.focus();
+        } else if (e.key === "Escape") {
+          e.preventDefault();
+          close({ restoreFocus: true });
+        } else if (e.key === " " || e.key === "Enter") {
+          e.preventDefault();
+          btn.click();
+        }
       });
     });
 

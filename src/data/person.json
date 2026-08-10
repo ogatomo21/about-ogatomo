@@ -54,8 +54,8 @@
   "url": "https://about.ogtm.dev",
   "image": {
     "@type": "ImageObject",
-    "url": "https://about.ogtm.dev/images/profile-ogp.webp",
-    "contentUrl": "https://about.ogtm.dev/images/profile-ogp.webp",
+    "url": "https://about.ogtm.dev/images/profile-ogp.png",
+    "contentUrl": "https://about.ogtm.dev/images/profile-ogp.png",
     "width": 1200,
     "height": 630,
     "caption": {

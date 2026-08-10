@@ -28,52 +28,72 @@ export function L(value, locale) {
   return String(value);
 }
 
+function parseMonthDate(value, compact) {
+  const match = String(value).match(compact ? /^(\d{4})(\d{2})$/ : /^(\d{4})-(\d{2})$/);
+  if (!match) return null;
+  const month = Number(match[2]);
+  if (month < 1 || month > 12) return null;
+  return { year: match[1], month: String(month).padStart(2, "0") };
+}
+
+export function toDateTime(value) {
+  const compact = parseMonthDate(value, true);
+  if (compact) return `${compact.year}-${compact.month}`;
+  const separated = parseMonthDate(value, false);
+  return separated ? `${separated.year}-${separated.month}` : "";
+}
+
 export function formatWorkDate(yyyymm, locale) {
-  const m = String(yyyymm).match(/^(\d{4})(\d{2})$/);
+  const m = parseMonthDate(yyyymm, true);
   if (!m) return escapeHtml(yyyymm);
   if (locale === "en") {
     const months = [
       "Jan", "Feb", "Mar", "Apr", "May", "Jun",
       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
-    return `${months[Number(m[2]) - 1]} ${m[1]}`;
+    return `${months[Number(m.month) - 1]} ${m.year}`;
   }
-  return `${m[1]}年${m[2]}月`;
+  return `${m.year}年${m.month}月`;
 }
 
 export function formatTimelineDate(date, locale) {
-  const m = String(date).match(/^(\d{4})-(\d{2})$/);
+  const m = parseMonthDate(date, false);
   if (!m) return escapeHtml(date);
   if (locale === "en") {
     const months = [
       "Jan", "Feb", "Mar", "Apr", "May", "Jun",
       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
-    return `${months[Number(m[2]) - 1]} ${m[1]}`;
+    return `${months[Number(m.month) - 1]} ${m.year}`;
   }
-  return `${m[1]}年${m[2]}月`;
+  return `${m.year}年${m.month}月`;
 }
 
 const TYPE_BADGE = {
   Application: "bg-[#795548] text-ink",
-  Website: "bg-light text-ink",
-  Extension: "bg-[#9575CD] text-ink",
+  Website: "bg-light text-on-light",
+  Extension: "bg-[#6D4DB4] text-ink",
   Library: "bg-panel text-ink",
 };
 
 const KIND_CLASS = {
-  award: "bg-primary text-ink",
-  qualification: "bg-green text-ink",
-  media: "bg-light text-ink",
+  award: "bg-primary text-on-primary",
+  qualification: "bg-green text-on-green",
+  media: "bg-light text-on-light",
   event: "bg-panel text-ink",
 };
 
 /** Newest first by YYYYMM / sortable date string */
+export function sortByDateDesc(items) {
+  return [...items].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+}
+
 export function sortWorksByDateDesc(works) {
-  return [...works].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  return sortByDateDesc(works);
 }
 
 export const WORKS_HOME_LIMIT = 10;
+export const CARD_IMAGE_WIDTHS = [480, 960, 1600];
 
 /**
  * Fallback when works/events have no image — same asset as hero (AVIF/WebP via <picture>).
@@ -116,7 +136,7 @@ function resolveImage(item, _collection = "works") {
  * Local raster paths get <picture> with AVIF/WebP (built by scripts/optimize-images.mjs).
  * Remote/data URLs stay as a plain <img>.
  */
-function renderPicture(src, { alt = "", width = 640, height = 320, className = "" } = {}) {
+function renderPicture(src, { alt = "", width = 640, height = 640, className = "" } = {}) {
   const imageSrc = src || DEFAULT_CARD_IMAGE;
   const safeSrc = escapeHtml(imageSrc);
   const classAttr = className ? ` class="${escapeHtml(className)}"` : "";
@@ -126,16 +146,21 @@ function renderPicture(src, { alt = "", width = 640, height = 320, className = "
     return img;
   }
 
-  const m = imageSrc.match(/^(.*)\.(png|jpe?g|webp|gif)$/i);
+  const m = imageSrc.match(/^(.*)\.(png|jpe?g|webp)$/i);
   if (!m) {
     return img;
   }
 
   const base = m[1];
+  const sizes = "(min-width: 1280px) 20vw, (min-width: 900px) 33vw, (min-width: 640px) 50vw, 82vw";
+  const srcset = (extension) =>
+    CARD_IMAGE_WIDTHS
+      .map((candidate) => `${base}-${candidate}.${extension} ${candidate}w`)
+      .join(", ");
   return `
 <picture>
-  <source type="image/avif" srcset="${escapeHtml(`${base}.avif`)}" />
-  <source type="image/webp" srcset="${escapeHtml(`${base}.webp`)}" />
+  <source type="image/avif" srcset="${escapeHtml(srcset("avif"))}" sizes="${sizes}" />
+  <source type="image/webp" srcset="${escapeHtml(srcset("webp"))}" sizes="${sizes}" />
   ${img}
 </picture>`.trim();
 }
@@ -162,13 +187,15 @@ function renderSquareMediaCard({
   desc,
   extraBody = "",
   variant = "slider",
+  dateTime = "",
 }) {
   const media = renderMediaHalf(image);
+  const timeAttr = dateTime ? ` datetime="${escapeHtml(dateTime)}"` : "";
   const body = `
   <div class="media-card__body">
     <div class="media-card__meta">
       <span class="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeClass}">${escapeHtml(badgeText)}</span>
-      <time class="text-xs text-secondary/80">${timeHtml}</time>
+      <time${timeAttr} class="text-xs text-secondary/80">${timeHtml}</time>
     </div>
     <h3 class="media-card__title">${title}</h3>
     <p class="media-card__desc">${desc}</p>
@@ -177,8 +204,8 @@ function renderSquareMediaCard({
 
   const shell =
     variant === "grid"
-      ? "media-card media-card--grid content-card content-card--hover block no-underline text-inherit"
-      : "card-slider-item media-card content-card content-card--hover block no-underline text-inherit";
+      ? "media-card media-card--grid content-card content-card--hover no-underline text-inherit"
+      : "card-slider-item media-card content-card content-card--hover no-underline text-inherit";
   const roleAttr = variant === "grid" ? ' role="listitem"' : "";
 
   if (href) {
@@ -208,6 +235,7 @@ function renderWorkCard(item, locale, { list = false } = {}) {
     badgeClass: badge,
     badgeText: typeLabel,
     timeHtml: formatWorkDate(item.date, locale),
+    dateTime: toDateTime(item.date),
     title,
     desc,
     variant: list ? "grid" : "slider",
@@ -253,7 +281,8 @@ export function renderSkills(skills, locale) {
 }
 
 export function renderTimeline(items, locale, detailLabel) {
-  return items
+  const sortedItems = sortByDateDesc(items);
+  return sortedItems
     .map((item, i) => {
       const desc = escapeHtml(L(item.description, locale));
       const link = item.url
@@ -266,8 +295,8 @@ export function renderTimeline(items, locale, detailLabel) {
       return `
 <li class="relative pl-8 pb-8 last:pb-0">
   <span class="absolute left-0 top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-primary bg-page" aria-hidden="true"></span>
-  ${i < items.length - 1 ? '<span class="absolute left-[6px] top-5 bottom-0 w-0.5 bg-tertiary" aria-hidden="true"></span>' : ""}
-  <time class="mb-1 block text-xs font-semibold uppercase tracking-wide text-primary">${formatTimelineDate(item.date, locale)}</time>
+  ${i < sortedItems.length - 1 ? '<span class="absolute left-[6px] top-5 bottom-0 w-0.5 bg-tertiary" aria-hidden="true"></span>' : ""}
+  <time${toDateTime(item.date) ? ` datetime="${escapeHtml(toDateTime(item.date))}"` : ""} class="mb-1 block text-xs font-semibold uppercase tracking-wide text-primary">${formatTimelineDate(item.date, locale)}</time>
   <h3 class="text-base font-bold text-text">${escapeHtml(L(item.title, locale))}</h3>
   ${body}
 </li>`.trim();
@@ -277,7 +306,7 @@ export function renderTimeline(items, locale, detailLabel) {
 
 export function renderEvents(events, locale, dict) {
   const kindLabels = (dict.events && dict.events.kind) || {};
-  return events
+  return sortByDateDesc(events)
     .map((item) => {
       const kindClass = KIND_CLASS[item.kind] || KIND_CLASS.event;
       const kindLabel = kindLabels[item.kind] || kindLabels.event || item.kind;
@@ -291,6 +320,7 @@ export function renderEvents(events, locale, dict) {
         badgeClass: kindClass,
         badgeText: kindLabel,
         timeHtml: formatTimelineDate(item.date, locale),
+        dateTime: toDateTime(item.date),
         title,
         desc,
       });
@@ -337,8 +367,8 @@ export function buildPersonJsonLd(person, locale, pageCanonical) {
   return {
     "@context": p["@context"] || "https://schema.org",
     "@type": p["@type"] || "Person",
-    name: p.name,
-    alternateName: p.alternateName,
+    name: resolveLdLocale(p.name, locale),
+    alternateName: resolveLdLocale(p.alternateName, locale),
     givenName: resolveLdLocale(p.givenName, locale),
     familyName: resolveLdLocale(p.familyName, locale),
     description: resolveLdLocale(p.description, locale),
@@ -362,6 +392,10 @@ export function buildPersonJsonLd(person, locale, pageCanonical) {
 
 /** Compact JSON string for embedding in <script type="application/ld+json"> */
 export function personJsonLdString(person, locale, pageCanonical) {
-  return JSON.stringify(buildPersonJsonLd(person, locale, pageCanonical));
+  return JSON.stringify(buildPersonJsonLd(person, locale, pageCanonical))
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
 }
-

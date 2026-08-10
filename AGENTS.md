@@ -1,7 +1,7 @@
 # AGENTS.md — about-ogatomo
 
 エージェント／開発者向けの現状整理と編集指針。  
-最終更新: 2026-07-15（メディアカード・画像パイプライン・Person JSON-LD 共通化）
+最終更新: 2026-08-10（Cloudflare Workers・ビルド検証・アクセシビリティ改善）
 
 ---
 
@@ -13,7 +13,7 @@
 | 種別 | 個人プロフィール／ポートフォリオ（静的・多言語） |
 | 公開 URL | https://about.ogtm.dev |
 | リポジトリ | https://github.com/ogatomo21/about-ogatomo |
-| デプロイ | GitHub Actions → `gh-pages` ブランチ → GitHub Pages（CF Pages 移行は未実施・検討可） |
+| デプロイ | Cloudflare Workers（Static Assets、Workers側の自動ビルド） |
 | ライセンス | MIT |
 | スタック | Node.js, **Vite 6**, Tailwind CSS **v3**, PostCSS, **sharp**（画像派生） |
 | 外部 CMS | **廃止**（旧 `ogcms.ogtm.workers.dev` は使わない） |
@@ -27,7 +27,7 @@ src/data/*.json  +  src/i18n/*.json  +  src/*.html   ← 編集する正
 public/images/**/*.{png,jpg,jpeg,webp}               ← 画像ソースのみ（派生は書かない）
         │
         ▼
- scripts/optimize-images.mjs  →  .tmp/images/** に .webp / .avif のみ
+ scripts/optimize-images.mjs  →  .tmp/images/** に .webp / .avif + SHA-256 manifest
  scripts/inject-data.mjs      →  .tmp/*.html（マーカー埋め込み + i18n + JSON-LD）
         │
         ▼
@@ -35,7 +35,7 @@ public/images/**/*.{png,jpg,jpeg,webp}               ← 画像ソースのみ�
         │  closeBundle: HTML を dist 直下へ / 画像パス正規化
         │              .tmp/images を dist/images へマージ（public にある同名は上書きしない）
         ▼
-      dist/   ← GitHub Pages が配信（gh-pages ブランチ）
+      dist/   ← Cloudflare Workers が配信
 ```
 
 - **ルートの HTML は作らない。** 中間生成は `.tmp/` のみ（ソース `src/` と混同しない）。
@@ -57,14 +57,16 @@ public/images/**/*.{png,jpg,jpeg,webp}               ← 画像ソースのみ�
 
 | コマンド | 内容 |
 |----------|------|
-| `npm run images` | `public/images` → `.tmp/images` に WebP/AVIF（最大幅 2000、解像度はソース側で管理） |
+| `npm run images` | `public/images` → `.tmp/images` にWebP/AVIF（SHA-256で変更分のみ、`--force`で全再生成） |
 | `npm run inject` | JSON → `.tmp/index.*.html` 等 |
-| `npm run build` | images + inject + `vite build` → `dist/` |
-| `npm run dev` | images + inject + Vite |
+| `npm run build` | validate + images + inject + `vite build` → `dist/` + 成果物検査 |
+| `npm run dev` | Vite（config hookでimages + inject） |
 | `npm run preview` | `dist/` をプレビュー |
+| `npm run test` | Node標準テスト |
+| `npm run validate` | JSON / i18n / 画像参照を検証 |
 | `npm run clean` | `dist/` と `.tmp/` を削除 |
 
-`prebuild` / `predev` は `images` → `inject` の順。
+画像生成はVite設定のconfig hookで一度だけ行い、`.tmp/image-manifest.json`のSHA-256と生成設定が一致する画像は再利用する。データ注入はVite設定読み込み前に一度だけ行う。ビルド後は`check-build.mjs`で成果物を検査する。
 
 ---
 
@@ -76,10 +78,11 @@ about-ogatomo/
 ├── vite.config.mjs         # inject プラグイン・画像ミドルウェア・dist 平坦化
 ├── tailwind.config.cjs
 ├── postcss.config.cjs
-├── .github/workflows/deploy.yml
 ├── scripts/
 │   ├── inject-data.mjs
-│   └── optimize-images.mjs # sharp → .tmp/images のみ
+│   ├── optimize-images.mjs # sharp → .tmp/images のみ
+│   ├── validate-data.mjs
+│   └── check-build.mjs
 ├── src/
 │   ├── index.html          # トップ（inject + data-i18n + #json-ld-person）
 │   ├── works.html          # 制作物一覧
@@ -101,9 +104,9 @@ about-ogatomo/
 │   ├── robots.txt
 │   ├── sitemap.xml
 │   └── images/
-│       # ※ public/CNAME は置かない（GitHub Pages 用。CF 配信では不要・禁止）
+│       # ※ public/CNAME は置かない（Cloudflare Custom Domainで設定）
 │       ├── header.jpg      # ヒーロー（現状 960×480・ソースで解像度管理）
-│       ├── profile-ogp.png / .webp
+│       ├── profile-ogp.png
 │       └── works/          # カード画像（制作物・イベント共通。events/ フォルダは廃止）
 ├── AGENTS.md
 ├── README.md
@@ -170,7 +173,7 @@ about-ogatomo/
 - 辞書: `src/i18n/ja.json` / `en.json`（UI のみ）
 - コンテンツ: `src/data/*` は `string` または `{ "ja", "en" }`
 - ビルド: `index.ja.html` / `index.en.html`、ルート `index.html` は言語リダイレクト
-- 切替: リロードなし（`i18n-runtime.js`）。辞書・data・`content-render` をバンドル（main.js ~39KB 前後。辞書二重持ちは意図的）
+- 切替: リロードなし（`i18n-runtime.js`）。辞書・data・`content-render` をバンドル（辞書二重持ちは意図的）
 - プレースホルダ: `{{key}}` / `{{{raw}}}` + `data-i18n` / `data-i18n-attr`
 
 自己紹介リード（ja）: 「プログラミングとテクノロジーが好きな14歳。Webアプリの制作や、初心者にも分かりやすいテック記事の執筆をしています。」  
@@ -281,17 +284,18 @@ HTML に JSON-LD を直書きしない。`#json-ld-person` に inject / 言語�
 
 ## 9. デプロイ
 
-- Workflow: `.github/workflows/deploy.yml`
-- Trigger: `push` to `main` / `workflow_dispatch`
+- デプロイ: Cloudflare Workers側のGit連携・自動ビルド
+- ビルドコマンド: `npm run build`
+- 出力ディレクトリ: `dist`
 - 公開ドメイン: **https://about.ogtm.dev**
-- **`public/CNAME` は使わない・作らない。** GitHub Pages 専用ファイル。Cloudflare では Custom Domain で設定する。
+- **`public/CNAME` は使わない・作らない。** Custom DomainはCloudflare側で設定する。
 
-### Cloudflare Pages / Workers
+### Cloudflare Workers
 
-- このサイトは静的 `dist/` のみなので **Pages**（または Workers Static Assets）向き。
-- CF 側ビルド: `npm run build` / 出力 `dist` / Node 20。`sharp` はビルド時のみ。
-- ランタイムの Worker で Vite を回す必要はない。
-- カスタムドメインは **CF ダッシュボード** で設定（リポジトリに CNAME を置かない）。
+- このサイトは静的 `dist/` のみなので Workers Static Assetsで配信する。
+- CF側ビルド: `npm run build` / 出力 `dist` / Node 20。`sharp` はビルド時のみ。
+- ランタイムのWorkerでViteやCMS/APIを実行しない。
+- カスタムドメインはCloudflare側で設定する（リポジトリにCNAMEを置かない）。
 
 ---
 
@@ -308,7 +312,7 @@ HTML に JSON-LD を直書きしない。`#json-ld-person` に inject / 言語�
 9. **カード画像パスは `/images/…` 系**（Vite が assets に二重出力しないこと）。  
 10. **Person JSON-LD は `person.json` のみ。** HTML 直書き・i18n の `ldAward` 再導入禁止。  
 11. 制作物ホームは **最新 10 件**。カードは正方形メディアカードを維持。  
-12. **`public/CNAME` を追加しない**（GitHub Pages 用。CF では不要）。  
+12. **`public/CNAME` を追加しない**（Cloudflare Custom Domainで設定する）。
 13. 方針変更はこの AGENTS.md に追記する。
 
 ---
@@ -334,3 +338,5 @@ HTML に JSON-LD を直書きしない。`#json-ld-person` に inject / 言語�
 | 2026-07-15 | ヒーロー解像度はソース側で管理（960×480 に置換）。ビルド側の強制縮小はしない |
 | 2026-07-15 | Person JSON-LD を `src/data/person.json` に共通化。description / givenName / familyName / gender / nationality / knowsAbout / ImageObject 等 |
 | 2026-07-15 | 本ドキュメントに上記を集約して更新 |
+| 2026-08-10 | Cloudflare Workersへデプロイ変更。データ検証、成果物検査、画像派生のレスポンシブ化、アクセシビリティ改善 |
+| 2026-08-10 | 画像派生をSHA-256マニフェストで増分生成。未変更画像の再エンコードを回避 |

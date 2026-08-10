@@ -19,21 +19,19 @@ const IMAGE_MIME = {
 };
 
 /**
- * 1) inject + image optimize before build/dev
+ * 1) inject before Vite resolves MPA inputs; optimize images once in config
  * 2) Dev: serve /.tmp/*.html as /*.html; serve optimized images from .tmp/images
  * 3) Build: emit HTML to dist/ root; merge .tmp/images → dist/images
  */
 function injectDataPlugin() {
   return {
     name: "ogatomo-inject-data",
-    async buildStart() {
+    async config() {
+      // config runs for both dev and build, before either server or Rollup starts.
+      // Keeping image generation here avoids duplicate prebuild/buildStart work.
       await runOptimizeImages();
-      runInject();
     },
     configureServer(server) {
-      void runOptimizeImages();
-      runInject();
-
       // Optimized AVIF/WebP live only under .tmp/images (not public/)
       server.middlewares.use((req, res, next) => {
         const url = req.url || "";
@@ -42,12 +40,13 @@ function injectDataPlugin() {
           return next();
         }
         // Prefer real files in public/ if present
-        const pubFile = path.join(
-          __dirname,
-          "public",
-          pathname.replace(/^\//, "").replace(/\.\./g, "")
-        );
-        if (fs.existsSync(pubFile) && fs.statSync(pubFile).isFile()) {
+        const publicRoot = path.resolve(__dirname, "public");
+        const pubFile = path.resolve(publicRoot, pathname.replace(/^\/+/, ""));
+        if (
+          pubFile.startsWith(`${publicRoot}${path.sep}`) &&
+          fs.existsSync(pubFile) &&
+          fs.statSync(pubFile).isFile()
+        ) {
           return next();
         }
         const tmpFile = resolveTmpImage(pathname);
@@ -144,6 +143,8 @@ function injectDataPlugin() {
               /(src|srcset|href)="\/images\//g,
               '$1="./images/'
             );
+            // Also normalize later candidates in responsive srcset lists.
+            html = html.replace(/([\s,"'])\/images\//g, "$1./images/");
             if (fs.existsSync(to)) fs.rmSync(to, { force: true });
             fs.writeFileSync(to, html, "utf8");
             fs.rmSync(from, { force: true });
