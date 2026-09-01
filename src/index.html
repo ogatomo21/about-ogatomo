@@ -73,7 +73,7 @@
       <div class="header-menu-body" id="header-menu-panel" data-header-menu-panel>
         <nav class="site-header-nav" data-i18n-attr="aria-label:nav.aria" aria-label="{{nav.aria}}">
           <a href="#top" class="site-nav-btn" data-nav="home" data-i18n="nav.home">{{nav.home}}</a>
-          <a href="./works.{{page.locale}}.html" class="site-nav-btn" data-nav="works" data-page-link="works" data-i18n="nav.works">{{nav.works}}</a>
+          <a href="{{page.worksHref}}" class="site-nav-btn" data-nav="works" data-page-link="works" data-i18n="nav.works">{{nav.works}}</a>
           <a
             href="https://ogatomo.net/contact"
             target="_blank"
@@ -325,7 +325,7 @@
       </div>
       <div class="section-inner">
         <p class="mt-8 flex flex-col items-center gap-2 text-center text-sm sm:flex-row sm:justify-center sm:gap-6">
-          <a href="./works.{{page.locale}}.html" class="font-semibold text-primary hover:underline" data-page-link="works" data-i18n="works.viewAll">{{works.viewAll}}</a>
+          <a href="{{page.worksHref}}" class="font-semibold text-primary hover:underline" data-page-link="works" data-i18n="works.viewAll">{{works.viewAll}}</a>
           <a href="https://github.com/ogatomo21?tab=repositories" target="_blank" rel="noopener noreferrer" class="font-medium text-light hover:underline" data-i18n="works.githubMore">
             {{works.githubMore}}
           </a>

@@ -44,7 +44,7 @@
     <div class="site-header-inner" data-header-menu>
       <div class="site-header-bar">
         <a
-          href="./index.{{page.locale}}.html"
+          href="{{page.homeHref}}"
           class="site-brand"
           data-nav="home"
           data-page-link="home"
@@ -68,8 +68,8 @@
       </div>
       <div class="header-menu-body" id="header-menu-panel" data-header-menu-panel>
         <nav class="site-header-nav" data-i18n-attr="aria-label:nav.aria" aria-label="{{nav.aria}}">
-          <a href="./index.{{page.locale}}.html" class="site-nav-btn" data-nav="home" data-page-link="home" data-i18n="nav.home">{{nav.home}}</a>
-          <a href="./works.{{page.locale}}.html" class="site-nav-btn" data-nav="works" data-page-link="works" data-i18n="nav.works" aria-current="page">{{nav.works}}</a>
+          <a href="{{page.homeHref}}" class="site-nav-btn" data-nav="home" data-page-link="home" data-i18n="nav.home">{{nav.home}}</a>
+          <a href="{{page.worksHref}}" class="site-nav-btn" data-nav="works" data-page-link="works" data-i18n="nav.works" aria-current="page">{{nav.works}}</a>
           <a
             href="https://ogatomo.net/contact"
             target="_blank"
@@ -124,7 +124,7 @@
     <section class="section-pad bg-page" aria-labelledby="works-page-heading">
       <div class="section-inner">
         <p class="mb-3">
-          <a href="./index.{{page.locale}}.html" class="text-sm font-medium text-light hover:underline" data-page-link="home" data-i18n="works.backHome">{{works.backHome}}</a>
+          <a href="{{page.homeHref}}" class="text-sm font-medium text-light hover:underline" data-page-link="home" data-i18n="works.backHome">{{works.backHome}}</a>
         </p>
         <h1 id="works-page-heading" class="section-title" data-i18n="works.title">{{works.title}}</h1>
         <p class="section-lead mb-10 sm:mb-12" data-i18n="works.lead">{{works.lead}}</p>

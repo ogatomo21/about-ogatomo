@@ -6,7 +6,8 @@
  *
  *  - png/jpg/jpeg → .tmp/.../name.webp + .tmp/.../name.avif
  *  - standalone webp → .tmp/.../name.webp + .tmp/.../name.avif
- *  - card derivatives also get -480 / -960 / -1600 variants
+ *  - cards also get a -480 mobile candidate; the full-size derivative is the
+ *    desktop/2x candidate, avoiding fake 960w/1600w descriptors and duplicates
  *
  * Reuses unchanged derivatives through a SHA-256 manifest and prunes stale paths.
  * Does not re-encode/replace original rasters — source resolution is yours to manage.
@@ -16,7 +17,7 @@ import path from "path";
 import { createHash } from "crypto";
 import { fileURLToPath } from "url";
 import sharp from "sharp";
-import { CARD_IMAGE_WIDTHS } from "../src/lib/content-render.js";
+import { CARD_IMAGE_MOBILE_WIDTH } from "../src/lib/content-render.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -28,13 +29,15 @@ const RASTER = new Set([".png", ".jpg", ".jpeg"]);
 const WEBP_Q = 82;
 const AVIF_Q = 55;
 const MAX_WIDTH = 2000;
-const IMAGE_PIPELINE_VERSION = 1;
+const IMAGE_PIPELINE_VERSION = 2;
+const PASSTHROUGH_SOURCES = new Set(["profile-ogp.png"]);
 const PIPELINE_CONFIG = {
   version: IMAGE_PIPELINE_VERSION,
   webpQuality: WEBP_Q,
   avifQuality: AVIF_Q,
   maxWidth: MAX_WIDTH,
-  cardWidths: CARD_IMAGE_WIDTHS,
+  mobileWidth: CARD_IMAGE_MOBILE_WIDTH,
+  passthroughSources: [...PASSTHROUGH_SOURCES],
 };
 
 function walk(dir, out = []) {
@@ -96,10 +99,10 @@ function writeManifest(sources) {
 function targetsFor(file, extension) {
   return [
     { path: outPathFor(file, extension), width: MAX_WIDTH },
-    ...CARD_IMAGE_WIDTHS.map((width) => ({
-      path: outPathFor(file, `-${width}${extension}`),
-      width,
-    })),
+    {
+      path: outPathFor(file, `-${CARD_IMAGE_MOBILE_WIDTH}${extension}`),
+      width: CARD_IMAGE_MOBILE_WIDTH,
+    },
   ];
 }
 
@@ -141,6 +144,7 @@ export async function runOptimizeImages({ force = false } = {}) {
 
   for (const file of files) {
     const ext = path.extname(file).toLowerCase();
+    const key = sourceKey(file);
     const baseInSrc = file.slice(0, -ext.length);
     const isStandaloneWebp =
       ext === ".webp" &&
@@ -150,6 +154,11 @@ export async function runOptimizeImages({ force = false } = {}) {
       if (ext === ".webp") skipped += 1;
       continue;
     }
+    // OGP is referenced as its original PNG in metadata, never through <picture>.
+    if (PASSTHROUGH_SOURCES.has(key)) {
+      skipped += 1;
+      continue;
+    }
 
     const outputs = [
       ...targetsFor(file, ".webp"),
@@ -157,7 +166,6 @@ export async function runOptimizeImages({ force = false } = {}) {
     ].map((target) => relativeOutput(target.path));
     outputs.forEach((output) => expectedOutputs.add(output));
 
-    const key = sourceKey(file);
     const hash = sha256File(file);
     sources[key] = { hash, outputs };
     const old = previous?.sources?.[key];

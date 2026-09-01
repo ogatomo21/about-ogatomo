@@ -18,6 +18,12 @@ const IMAGE_MIME = {
   ".webp": "image/webp",
 };
 
+const CLEAN_HTML = new Set(
+  GENERATED_HTML
+    .filter((name) => name.endsWith(".html") && !["index.html", "404.html"].includes(name))
+    .map((name) => name.slice(0, -".html".length))
+);
+
 /**
  * 1) inject before Vite resolves MPA inputs; optimize images once in config
  * 2) Dev: serve /.tmp/*.html as /*.html; serve optimized images from .tmp/images
@@ -73,6 +79,8 @@ function injectDataPlugin() {
         const name = pathname.replace(/^\//, "");
         if (GENERATED_HTML.includes(name)) {
           req.url = `/.tmp/${name}${q}`;
+        } else if (CLEAN_HTML.has(name)) {
+          req.url = `/.tmp/${name}.html${q}`;
         }
         next();
       });
@@ -121,6 +129,18 @@ function injectDataPlugin() {
 
       server.watcher.on("change", onChange);
       server.watcher.on("add", onChange);
+    },
+    configurePreviewServer(server) {
+      // Vite preview does not apply Cloudflare Pages clean-URL routing itself.
+      server.middlewares.use((req, _res, next) => {
+        const url = req.url || "";
+        const qIdx = url.indexOf("?");
+        const pathname = (qIdx >= 0 ? url.slice(0, qIdx) : url).split("#")[0];
+        const q = qIdx >= 0 ? url.slice(qIdx) : "";
+        const name = pathname.replace(/^\//, "");
+        if (CLEAN_HTML.has(name)) req.url = `/${name}.html${q}`;
+        next();
+      });
     },
     closeBundle() {
       // Vite emits MPA HTML under dist/.tmp/ — move to dist/ root for Pages.

@@ -11,6 +11,7 @@ import {
   renderWorks,
   sortWorksByDateDesc,
 } from "../src/lib/content-render.js";
+import { runInject } from "../scripts/inject-data.mjs";
 import { validateProjectData } from "../scripts/validate-data.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -26,14 +27,17 @@ test("project data passes the build validator", () => {
   assert.equal(data.events.length, events.length);
 });
 
-test("works are sorted newest first and use responsive picture sources", () => {
+test("works are sorted newest first and use truthful picture candidates", () => {
   const sorted = sortWorksByDateDesc(works);
   assert.equal(sorted[0].date, "202502");
 
   const html = renderWorks(sorted.slice(0, 1), "en");
   assert.match(html, /header|works\//);
-  assert.match(html, /-480\.avif 480w/);
-  assert.match(html, /-960\.webp 960w/);
+  assert.match(html, /-480\.avif 1x/);
+  assert.match(html, /\.avif 2x/);
+  assert.match(html, /type="image\/webp"/);
+  assert.doesNotMatch(html, /-(?:960|1600)\.(?:avif|webp)/);
+  assert.doesNotMatch(html, /\s(?:960|1600)w/);
   assert.match(html, /<time datetime="2025-02"[^>]*>Feb 2025<\/time>/);
 });
 
@@ -53,7 +57,22 @@ test("timeline and event dates include machine-readable datetime values", () => 
 test("JSON-LD safely escapes script terminators", () => {
   const unsafe = structuredClone(person);
   unsafe.description = { ja: "</script><script>alert(1)</script>", en: "safe" };
-  const json = personJsonLdString(unsafe, "ja", "https://about.ogtm.dev/index.ja.html");
+  const json = personJsonLdString(unsafe, "ja", "https://about.ogtm.dev/index.ja");
   assert.doesNotMatch(json, /<\/script>/i);
   assert.ok(json.includes("\\u003c/script\\u003e"));
+});
+
+test("generated public URLs are extensionless and 404 keeps its response", () => {
+  runInject();
+  const indexJa = fs.readFileSync(path.join(ROOT, ".tmp/index.ja.html"), "utf8");
+  const worksEn = fs.readFileSync(path.join(ROOT, ".tmp/works.en.html"), "utf8");
+  const notFound = fs.readFileSync(path.join(ROOT, ".tmp/404.html"), "utf8");
+  const notFoundJa = fs.readFileSync(path.join(ROOT, ".tmp/404.ja.html"), "utf8");
+  const sitemap = fs.readFileSync(path.join(ROOT, "public/sitemap.xml"), "utf8");
+
+  assert.match(indexJa, /rel="canonical" href="https:\/\/about\.ogtm\.dev\/index\.ja"/);
+  assert.match(worksEn, /href="\/index\.en"/);
+  assert.doesNotMatch(`${indexJa}${worksEn}${sitemap}`, /about\.ogtm\.dev\/(?:index|works|404)\.(?:ja|en)\.html/);
+  assert.equal(notFound, notFoundJa);
+  assert.doesNotMatch(notFound, /location\.replace/);
 });

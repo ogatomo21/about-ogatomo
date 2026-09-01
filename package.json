@@ -8,18 +8,19 @@
     "inject": "node scripts/inject-data.mjs",
     "validate": "node scripts/validate-data.mjs",
     "build": "vite build && node scripts/check-build.mjs",
+    "ci": "npm test && npm run build",
     "dev": "vite",
     "preview": "vite preview",
     "test": "node --test",
     "clean": "node -e \"const fs=require('fs');const path=require('path');const root=process.cwd();['dist','.tmp'].forEach(d=>{try{fs.rmSync(path.join(root,d),{recursive:true,force:true})}catch(e){}})\""
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.9.0"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
-    "sharp": "^0.35.3",
+    "autoprefixer": "^10.5.4",
+    "postcss": "^8.5.26",
+    "sharp": "^0.35.4",
     "tailwindcss": "^3.4.17",
     "vite": "^6.4.3"
   },

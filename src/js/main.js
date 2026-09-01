@@ -296,10 +296,10 @@ function initSiteHeader() {
           window.scrollTo({ top: 0, behavior: "smooth" });
           if (history.replaceState) history.replaceState(null, "", "#top");
         }
-        // else: follow href to index.{lang}.html
+        // else: follow href to /index.{lang}
         return;
       }
-      // works: normal navigation to works.{lang}.html
+      // works: normal navigation to /works.{lang}
     });
   });
 

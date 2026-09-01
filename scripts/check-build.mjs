@@ -37,6 +37,7 @@ function walkHtml(dir, output = []) {
 
 if (!fs.existsSync(DIST)) fail("dist/ does not exist");
 if (fs.existsSync(path.join(DIST, "CNAME"))) fail("dist/CNAME must not be emitted for Cloudflare");
+if (!fs.existsSync(path.join(DIST, "_headers"))) fail("dist/_headers is missing");
 
 for (const file of requiredHtml) {
   if (!fs.existsSync(path.join(DIST, file))) fail(`missing ${file}`);
@@ -48,6 +49,12 @@ for (const filePath of htmlFiles) {
   const html = fs.readFileSync(filePath, "utf8");
   for (const forbidden of ["{{", "ogcms", "about.ogatomo.net", "../src/"]) {
     if (html.includes(forbidden)) fail(`${relative} contains forbidden text: ${forbidden}`);
+  }
+  if (/about\.ogtm\.dev\/(?:index|works|404)\.(?:ja|en)\.html/.test(html)) {
+    fail(`${relative} contains a non-canonical .html public URL`);
+  }
+  if (/(?:href|content)="\/?(?:index|works|404)\.(?:ja|en)\.html/.test(html)) {
+    fail(`${relative} contains an internal .html public URL`);
   }
 
   const attributes = html.match(/(?:src|srcset)="([^"]+)"/g) || [];
@@ -71,6 +78,25 @@ for (const filePath of htmlFiles) {
 const indexJa = fs.readFileSync(path.join(DIST, "index.ja.html"), "utf8");
 if (!indexJa.includes("media-card") || !indexJa.includes('id="json-ld-person"')) {
   fail("index.ja.html is missing injected content");
+}
+
+const notFound = fs.readFileSync(path.join(DIST, "404.html"), "utf8");
+if (notFound.includes("location.replace")) {
+  fail("404.html must preserve the original 404 response instead of redirecting");
+}
+
+const staleImageNames = [];
+function findStaleImageNames(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) findStaleImageNames(full);
+    else if (/-(?:960|1600)\.(?:avif|webp)$/i.test(entry.name)) staleImageNames.push(full);
+  }
+}
+findStaleImageNames(path.join(DIST, "images"));
+if (staleImageNames.length > 0) {
+  fail(`obsolete oversized image candidates remain: ${staleImageNames.length}`);
 }
 
 console.log(`[check-build] OK · html=${htmlFiles.length}`);

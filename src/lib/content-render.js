@@ -93,7 +93,7 @@ export function sortWorksByDateDesc(works) {
 }
 
 export const WORKS_HOME_LIMIT = 10;
-export const CARD_IMAGE_WIDTHS = [480, 960, 1600];
+export const CARD_IMAGE_MOBILE_WIDTH = 480;
 
 /**
  * Fallback when works/events have no image — same asset as hero (AVIF/WebP via <picture>).
@@ -152,15 +152,14 @@ function renderPicture(src, { alt = "", width = 640, height = 640, className = "
   }
 
   const base = m[1];
-  const sizes = "(min-width: 1280px) 20vw, (min-width: 900px) 33vw, (min-width: 640px) 50vw, 82vw";
-  const srcset = (extension) =>
-    CARD_IMAGE_WIDTHS
-      .map((candidate) => `${base}-${candidate}.${extension} ${candidate}w`)
-      .join(", ");
+  const mobileSrcset = (extension) =>
+    `${base}-${CARD_IMAGE_MOBILE_WIDTH}.${extension} 1x, ${base}.${extension} 2x`;
   return `
 <picture>
-  <source type="image/avif" srcset="${escapeHtml(srcset("avif"))}" sizes="${sizes}" />
-  <source type="image/webp" srcset="${escapeHtml(srcset("webp"))}" sizes="${sizes}" />
+  <source media="(max-width: 639px)" type="image/avif" srcset="${escapeHtml(mobileSrcset("avif"))}" />
+  <source type="image/avif" srcset="${escapeHtml(`${base}.avif`)}" />
+  <source media="(max-width: 639px)" type="image/webp" srcset="${escapeHtml(mobileSrcset("webp"))}" />
+  <source type="image/webp" srcset="${escapeHtml(`${base}.webp`)}" />
   ${img}
 </picture>`.trim();
 }

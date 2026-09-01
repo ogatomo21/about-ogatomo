@@ -7,16 +7,17 @@
 - **Vite 6** + **Tailwind CSS v3** による静的サイト
 - Works / Links などは `src/data/*.json` で管理し、**ビルド時に HTML へ埋め込み**（実行時 CMS/API なし）
 - 日英対応（`src/i18n/`）。ページ内の言語切替はリロードなし
-- `main` への push で Cloudflare Workers 側の設定がビルドし、`dist/` を配信
+- `main` への push で Cloudflare Pages がテストと本番ビルドを実行し、`dist/` を配信
 
 ## 開発
 
-要件: Node.js 18 以上
+要件: Node.js 20.9 以上
 
 ```bash
 npm install
 npm run dev      # http://localhost:8080
 npm run build    # dist/ に静的成果物を出力
+npm run ci       # テスト + 本番ビルド + 成果物検査
 npm run preview  # ビルド結果の確認
 ```
 

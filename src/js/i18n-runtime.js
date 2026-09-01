@@ -183,15 +183,14 @@ function applyLanguageCore(locale, { updateUrl = true } = {}) {
   }
   setMeta('meta[property="og:locale"]', "content", dict.locale || locale);
 
-  // Relative paths so the site works under a subdirectory
+  // Cloudflare Pages exposes clean, extensionless public URLs.
   const path =
     pageKind === "works"
-      ? `./works.${locale}.html`
+      ? `/works.${locale}`
       : pageKind === "404"
-        ? `./404.${locale}.html`
-        : `./index.${locale}.html`;
-  const canonicalFile = path.replace(/^\.\//, "");
-  const canonical = `https://about.ogtm.dev/${canonicalFile}`;
+        ? `/404.${locale}`
+        : `/index.${locale}`;
+  const canonical = `https://about.ogtm.dev${path}`;
   setMeta('link[rel="canonical"]', "href", canonical);
   setMeta('meta[property="og:url"]', "content", canonical);
 
@@ -202,13 +201,13 @@ function applyLanguageCore(locale, { updateUrl = true } = {}) {
   }
 
   document.querySelectorAll('[data-page-link="home"]').forEach((el) => {
-    el.setAttribute("href", `./index.${locale}.html`);
+    el.setAttribute("href", `/index.${locale}`);
   });
   document.querySelectorAll('[data-page-link="works"]').forEach((el) => {
-    el.setAttribute("href", `./works.${locale}.html`);
+    el.setAttribute("href", `/works.${locale}`);
   });
   const homeLink = document.querySelector("[data-home-link]");
-  if (homeLink) homeLink.setAttribute("href", `./index.${locale}.html`);
+  if (homeLink) homeLink.setAttribute("href", `/index.${locale}`);
 
   // Lang menu selected state
   document.querySelectorAll("[data-lang-opt]").forEach((btn) => {
@@ -217,7 +216,9 @@ function applyLanguageCore(locale, { updateUrl = true } = {}) {
     btn.classList.toggle("is-active", on);
   });
 
-  if (updateUrl && history.replaceState) {
+  // Keep the originally requested URL on 404 responses; replacing it with
+  // /404.{locale} would turn a refresh into a normal 200 page.
+  if (updateUrl && pageKind !== "404" && history.replaceState) {
     const next = `${path}${location.search || ""}${location.hash || ""}`;
     if (location.pathname + location.search + location.hash !== next) {
       history.replaceState(null, "", next);

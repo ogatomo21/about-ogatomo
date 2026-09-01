@@ -63,24 +63,24 @@ function applyDict(template, dict, locale, page = "index", person = null) {
   let html = template;
   const flat = flatten(dict);
 
-  const fileBase =
-    page === "works" ? `works.${locale}.html` : page === "404" ? `404.${locale}.html` : `index.${locale}.html`;
+  const publicBase =
+    page === "works" ? `works.${locale}` : page === "404" ? `404.${locale}` : `index.${locale}`;
   const pathJa =
-    page === "works" ? "works.ja.html" : page === "404" ? "404.ja.html" : "index.ja.html";
+    page === "works" ? "works.ja" : page === "404" ? "404.ja" : "index.ja";
   const pathEn =
-    page === "works" ? "works.en.html" : page === "404" ? "404.en.html" : "index.en.html";
+    page === "works" ? "works.en" : page === "404" ? "404.en" : "index.en";
 
   flat["page.locale"] = locale;
   flat["page.htmlLang"] = dict.htmlLang || locale;
   flat["page.ogLocale"] = dict.locale || locale;
-  flat["page.canonical"] = `${SITE}/${fileBase}`;
-  flat["page.ogUrl"] = `${SITE}/${fileBase}`;
+  flat["page.canonical"] = `${SITE}/${publicBase}`;
+  flat["page.ogUrl"] = `${SITE}/${publicBase}`;
   flat["page.hreflangJa"] = `${SITE}/${pathJa}`;
   flat["page.hreflangEn"] = `${SITE}/${pathEn}`;
   flat["page.langJaActive"] = locale === "ja" ? "true" : "false";
   flat["page.langEnActive"] = locale === "en" ? "true" : "false";
-  flat["page.homeHref"] = `./index.${locale}.html`;
-  flat["page.worksHref"] = `./works.${locale}.html`;
+  flat["page.homeHref"] = `/index.${locale}`;
+  flat["page.worksHref"] = `/works.${locale}`;
   if (person) {
     flat["page.jsonLd"] = personJsonLdString(person, locale, flat["page.canonical"]);
   }
@@ -143,9 +143,9 @@ function buildRedirectHtml() {
   <title>about.ogatomo</title>
   <meta name="theme-color" content="#5068a2" id="meta-theme-color">
   <link rel="icon" href="./favicon.ico">
-  <link rel="alternate" hreflang="ja" href="${SITE}/index.ja.html">
-  <link rel="alternate" hreflang="en" href="${SITE}/index.en.html">
-  <link rel="alternate" hreflang="x-default" href="${SITE}/index.ja.html">
+  <link rel="alternate" hreflang="ja" href="${SITE}/index.ja">
+  <link rel="alternate" hreflang="en" href="${SITE}/index.en">
+  <link rel="alternate" hreflang="x-default" href="${SITE}/index.ja">
   <script>
     (function () {
       try {
@@ -169,15 +169,15 @@ function buildRedirectHtml() {
           var nav = (navigator.language || navigator.userLanguage || "ja").toLowerCase();
           lang = nav.indexOf("ja") === 0 ? "ja" : "en";
         }
-        var dest = "/index." + lang + ".html" + (location.search || "") + (location.hash || "");
+        var dest = "/index." + lang + (location.search || "") + (location.hash || "");
         location.replace(dest);
       } catch (e) {
-        location.replace("/index.ja.html");
+        location.replace("/index.ja");
       }
     })();
   </script>
   <noscript>
-    <meta http-equiv="refresh" content="0;url=/index.ja.html">
+    <meta http-equiv="refresh" content="0;url=/index.ja">
   </noscript>
   <style>
     body { margin: 0; font-family: sans-serif; background: #fff; color: #333; }
@@ -190,44 +190,10 @@ function buildRedirectHtml() {
   <div class="wrap">
     <p>
       Redirecting…<br>
-      <a href="/index.ja.html">日本語</a> ·
-      <a href="/index.en.html">English</a>
+      <a href="/index.ja">日本語</a> ·
+      <a href="/index.en">English</a>
     </p>
   </div>
-</body>
-</html>
-`;
-}
-
-function build404RedirectHtml() {
-  return `<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 | about.ogatomo</title>
-  <meta name="robots" content="noindex">
-  <script>
-    (function () {
-      try {
-        var key = "about-ogatomo-lang";
-        var langs = ["ja", "en"];
-        var stored = localStorage.getItem(key);
-        var lang = stored;
-        if (langs.indexOf(lang) < 0) {
-          var nav = (navigator.language || "ja").toLowerCase();
-          lang = nav.indexOf("ja") === 0 ? "ja" : "en";
-        }
-        location.replace("/404." + lang + ".html");
-      } catch (e) {
-        location.replace("/404.ja.html");
-      }
-    })();
-  </script>
-  <noscript><meta http-equiv="refresh" content="0;url=/404.ja.html"></noscript>
-</head>
-<body>
-  <p><a href="/404.ja.html">日本語</a> · <a href="/404.en.html">English</a></p>
 </body>
 </html>
 `;
@@ -283,6 +249,7 @@ function runInject(opts = {}) {
   const notFoundSrc = fs.readFileSync(path.join(SRC, "404.html"), "utf8");
 
   let anyChanged = false;
+  let default404Page = "";
   const counts = [];
 
   for (const locale of LOCALES) {
@@ -313,6 +280,7 @@ function runInject(opts = {}) {
 
     let page404 = applyDict(notFoundSrc, dict, locale, "404", person);
     assertResolved(page404, `404.${locale}.html`);
+    if (locale === "ja") default404Page = page404;
     if (writeIfChanged(path.join(OUT, `404.${locale}.html`), page404)) {
       anyChanged = true;
     }
@@ -323,7 +291,9 @@ function runInject(opts = {}) {
   if (writeIfChanged(path.join(OUT, "index.html"), buildRedirectHtml())) {
     anyChanged = true;
   }
-  if (writeIfChanged(path.join(OUT, "404.html"), build404RedirectHtml())) {
+  // Cloudflare Pages serves 404.html with the original 404 status and request URL.
+  // Keep that response in place; redirecting to /404.ja would turn it into a 200 page.
+  if (writeIfChanged(path.join(OUT, "404.html"), default404Page)) {
     anyChanged = true;
   }
 

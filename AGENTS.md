@@ -1,7 +1,7 @@
 # AGENTS.md — about-ogatomo
 
 エージェント／開発者向けの現状整理と編集指針。  
-最終更新: 2026-08-10（Cloudflare Workers・ビルド検証・アクセシビリティ改善）
+最終更新: 2026-08-31（Cloudflare Pages実設定同期・Clean URL・CI・画像派生改善）
 
 ---
 
@@ -13,7 +13,7 @@
 | 種別 | 個人プロフィール／ポートフォリオ（静的・多言語） |
 | 公開 URL | https://about.ogtm.dev |
 | リポジトリ | https://github.com/ogatomo21/about-ogatomo |
-| デプロイ | Cloudflare Workers（Static Assets、Workers側の自動ビルド） |
+| デプロイ | Cloudflare Pages（GitHub連携・自動ビルド） |
 | ライセンス | MIT |
 | スタック | Node.js, **Vite 6**, Tailwind CSS **v3**, PostCSS, **sharp**（画像派生） |
 | 外部 CMS | **廃止**（旧 `ogcms.ogtm.workers.dev` は使わない） |
@@ -35,7 +35,7 @@ public/images/**/*.{png,jpg,jpeg,webp}               ← 画像ソースのみ�
         │  closeBundle: HTML を dist 直下へ / 画像パス正規化
         │              .tmp/images を dist/images へマージ（public にある同名は上書きしない）
         ▼
-      dist/   ← Cloudflare Workers が配信
+      dist/   ← Cloudflare Pages が配信
 ```
 
 - **ルートの HTML は作らない。** 中間生成は `.tmp/` のみ（ソース `src/` と混同しない）。
@@ -49,7 +49,8 @@ public/images/**/*.{png,jpg,jpeg,webp}               ← 画像ソースのみ�
 - ルートに `index.html` は無い。生成物は `.tmp/`。
 - ミドルウェア:
   - `/` → `/.tmp/index.html`
-  - `/index.ja.html` 等（`GENERATED_HTML`）→ `/.tmp/...`
+  - `/index.ja` 等のClean URL → `/.tmp/index.ja.html` 等
+  - `/index.ja.html` 等（`GENERATED_HTML`）も開発用に `/.tmp/...` へ解決
   - `/images/*.{avif,webp}` で public に無いもの → `.tmp/images` から配信
 - **注意:** HTML 内で画像を `./images/foo.avif` のように相対指定すると、Vite が `.tmp` 上の派生を `dist/assets/*.[hash].*` にバンドルし、`dist/images` と **二重になる**。ソースでは **`/images/…`** を使い、`closeBundle` で dist 直下 HTML 向けに `./images/…` / `./assets/…` へ正規化する。
 
@@ -60,6 +61,7 @@ public/images/**/*.{png,jpg,jpeg,webp}               ← 画像ソースのみ�
 | `npm run images` | `public/images` → `.tmp/images` にWebP/AVIF（SHA-256で変更分のみ、`--force`で全再生成） |
 | `npm run inject` | JSON → `.tmp/index.*.html` 等 |
 | `npm run build` | validate + images + inject + `vite build` → `dist/` + 成果物検査 |
+| `npm run ci` | `npm test` + `npm run build`（ローカル / GitHub Actions用） |
 | `npm run dev` | Vite（config hookでimages + inject） |
 | `npm run preview` | `dist/` をプレビュー |
 | `npm run test` | Node標準テスト |
@@ -144,7 +146,7 @@ about-ogatomo/
 1. Hero（`#top`・全画面 `100dvh` 系）— 背景は **`<picture>`**（AVIF → WebP → `header.jpg`）。CSS `image-set` は使わない（複数フォーマットを取りにいくことがある）。上に `.hero-scrim` グラデ。
 2. 自己紹介 `#about` + プロフィール `#profile`（PC 2 カラム）
 3. 経歴 `#career` | スキル `#skills`（PC 2 カラム）
-4. 制作物 `#works`（ホームは最新 **10** 件スライダー / 全件は `works.{ja,en}.html`）
+4. 制作物 `#works`（ホームは最新 **10** 件スライダー / 全件の公開URLは `/works.{ja,en}`）
 5. イベント・受賞・資格 `#events`（スライダー）
 6. リンク集 `#links`
 7. CTA / Footer
@@ -172,7 +174,9 @@ about-ogatomo/
 
 - 辞書: `src/i18n/ja.json` / `en.json`（UI のみ）
 - コンテンツ: `src/data/*` は `string` または `{ "ja", "en" }`
-- ビルド: `index.ja.html` / `index.en.html`、ルート `index.html` は言語リダイレクト
+- ビルド成果物: `index.ja.html` / `index.en.html`。公開URLは `/index.ja` / `/index.en`（Cloudflare Pages Clean URL）
+- ルート `index.html` は保存言語・ブラウザー言語に応じてClean URLへリダイレクト
+- `404.html` はリダイレクトしない。Cloudflare Pages が元リクエストURLと404ステータスを保持したまま日本語404を配信し、ページ内切替で英語化する
 - 切替: リロードなし（`i18n-runtime.js`）。辞書・data・`content-render` をバンドル（辞書二重持ちは意図的）
 - プレースホルダ: `{{key}}` / `{{{raw}}}` + `data-i18n` / `data-i18n-attr`
 
@@ -200,7 +204,8 @@ about-ogatomo/
 | 本番配信 | `dist/images/` = public コピー + `.tmp` マージ |
 
 - ツール: `scripts/optimize-images.mjs` + **sharp**
-- カード HTML: `<picture>` で `type=image/avif` → `type=image/webp` → 元ファイル `<img>`
+- カード HTML: `<picture>` で AVIF → WebP → 元ファイル `<img>`。モバイルは `-480` と元解像度の密度候補、PCは元解像度派生を使う
+- 実寸より大きい `960w` / `1600w` descriptor は生成しない。OGP画像は元PNGだけを使い派生対象外
 - 外部 `https://` 画像はそのまま `<img>`
 - ヒーロー解像度・品質は **ソース `header.jpg` を差し替えて管理**（ビルドでヒーロー専用に再エンコード縮小しない）
 - `image` フィールド（works / events）:
@@ -284,16 +289,18 @@ HTML に JSON-LD を直書きしない。`#json-ld-person` に inject / 言語�
 
 ## 9. デプロイ
 
-- デプロイ: Cloudflare Workers側のGit連携・自動ビルド
-- ビルドコマンド: `npm run build`
+- デプロイ: Cloudflare PagesのGitHub連携・自動ビルド
+- ビルドコマンド: `npm test && npm run build`（未反映コミットでも既存scriptsだけで動く）
 - 出力ディレクトリ: `dist`
 - 公開ドメイン: **https://about.ogtm.dev**
 - **`public/CNAME` は使わない・作らない。** Custom DomainはCloudflare側で設定する。
 
-### Cloudflare Workers
+### Cloudflare Pages
 
-- このサイトは静的 `dist/` のみなので Workers Static Assetsで配信する。
-- CF側ビルド: `npm run build` / 出力 `dist` / Node 20。`sharp` はビルド時のみ。
+- このサイトは静的 `dist/` のみをPagesで配信する。Pages Functions / Workerランタイムは使わない。
+- CF側ビルド: `npm test && npm run build` / 出力 `dist` / Node 20.9以上。`sharp` はビルド時のみ。
+- `public/_headers` でCSP等のセキュリティヘッダーとハッシュ付きassetsの長期キャッシュを管理する。
+- 公開URLはPagesのClean URLに合わせて拡張子なしとする。生成ファイル名の `.html` は維持する。
 - ランタイムのWorkerでViteやCMS/APIを実行しない。
 - カスタムドメインはCloudflare側で設定する（リポジトリにCNAMEを置かない）。
 
@@ -313,7 +320,9 @@ HTML に JSON-LD を直書きしない。`#json-ld-person` に inject / 言語�
 10. **Person JSON-LD は `person.json` のみ。** HTML 直書き・i18n の `ldAward` 再導入禁止。  
 11. 制作物ホームは **最新 10 件**。カードは正方形メディアカードを維持。  
 12. **`public/CNAME` を追加しない**（Cloudflare Custom Domainで設定する）。
-13. 方針変更はこの AGENTS.md に追記する。
+13. **公開URLは拡張子なし**（`/index.ja`・`/works.ja` 等）。`.html` は生成ファイル名だけに使う。
+14. デプロイ先は **Cloudflare Pages**。明示的な移行指示なしにWorkers Static Assetsへ変更しない。
+15. 方針変更はこの AGENTS.md に追記する。
 
 ---
 
@@ -338,5 +347,6 @@ HTML に JSON-LD を直書きしない。`#json-ld-person` に inject / 言語�
 | 2026-07-15 | ヒーロー解像度はソース側で管理（960×480 に置換）。ビルド側の強制縮小はしない |
 | 2026-07-15 | Person JSON-LD を `src/data/person.json` に共通化。description / givenName / familyName / gender / nationality / knowsAbout / ImageObject 等 |
 | 2026-07-15 | 本ドキュメントに上記を集約して更新 |
-| 2026-08-10 | Cloudflare Workersへデプロイ変更。データ検証、成果物検査、画像派生のレスポンシブ化、アクセシビリティ改善 |
+| 2026-08-10 | Cloudflare PagesのGit連携を整備。データ検証、成果物検査、画像派生のレスポンシブ化、アクセシビリティ改善 |
 | 2026-08-10 | 画像派生をSHA-256マニフェストで増分生成。未変更画像の再エンコードを回避 |
+| 2026-08-31 | Cloudflare Pages実設定へ文書を同期。Clean URL・404ステータス維持・CI・セキュリティヘッダー・画像派生重複を改善 |
