@@ -180,7 +180,6 @@ function validateLinks(links, errors) {
     }
     validateLocalized(item.title, `${field}.title`, errors);
     validateRequiredUrl(item.url, `${field}.url`, errors);
-    if (!isNonEmptyString(item.group)) errors.push(`${field}.group: is required`);
   });
 }
 

@@ -9,7 +9,8 @@ import {
   renderEvents,
   renderTimeline,
   renderWorks,
-  sortWorksByDateDesc,
+  renderWorksList,
+  sortByDateDesc,
 } from "../src/lib/content-render.js";
 import { runInject } from "../scripts/inject-data.mjs";
 import { validateProjectData } from "../scripts/validate-data.mjs";
@@ -28,8 +29,8 @@ test("project data passes the build validator", () => {
 });
 
 test("works are sorted newest first and use truthful picture candidates", () => {
-  const sorted = sortWorksByDateDesc(works);
-  assert.equal(sorted[0].date, "202502");
+  const sorted = sortByDateDesc(works);
+  assert.deepEqual(sorted.map((item) => item.date), [...works].map((item) => item.date).sort().reverse());
 
   const html = renderWorks(sorted.slice(0, 1), "en");
   assert.match(html, /header|works\//);
@@ -38,7 +39,7 @@ test("works are sorted newest first and use truthful picture candidates", () => 
   assert.match(html, /type="image\/webp"/);
   assert.doesNotMatch(html, /-(?:960|1600)\.(?:avif|webp)/);
   assert.doesNotMatch(html, /\s(?:960|1600)w/);
-  assert.match(html, /<time datetime="2025-02"[^>]*>Feb 2025<\/time>/);
+  assert.match(html, /<time datetime="\d{4}-\d{2}"[^>]*>[A-Z][a-z]{2} \d{4}<\/time>/);
 });
 
 test("timeline and event dates include machine-readable datetime values", () => {
@@ -52,6 +53,15 @@ test("timeline and event dates include machine-readable datetime values", () => 
 
   const eventHtml = renderEvents(events.slice(0, 1), "en", dictEn);
   assert.match(eventHtml, /datetime="2026-02"/);
+});
+
+test("works grid preserves links inside list items in both languages", () => {
+  for (const locale of ["ja", "en"]) {
+    const html = renderWorksList(works, locale);
+    assert.equal((html.match(/<li\b/g) || []).length, works.length);
+    assert.equal((html.match(/<li[^>]*><a href=/g) || []).length, works.length);
+    assert.doesNotMatch(html, /<a\b[^>]*\brole=/);
+  }
 });
 
 test("JSON-LD safely escapes script terminators", () => {
@@ -72,6 +82,9 @@ test("generated public URLs are extensionless and 404 keeps its response", () =>
 
   assert.match(indexJa, /rel="canonical" href="https:\/\/about\.ogtm\.dev\/index\.ja"/);
   assert.match(worksEn, /href="\/index\.en"/);
+  assert.match(worksEn, /<ul\s+id="works-full-list"/);
+  assert.match(indexJa, /<select class="lang-select"[^>]*data-lang-select/);
+  assert.match(indexJa, /<option value="ja"[^>]*selected/);
   assert.doesNotMatch(`${indexJa}${worksEn}${sitemap}`, /about\.ogtm\.dev\/(?:index|works|404)\.(?:ja|en)\.html/);
   assert.equal(notFound, notFoundJa);
   assert.doesNotMatch(notFound, /location\.replace/);

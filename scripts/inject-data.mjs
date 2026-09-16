@@ -18,7 +18,7 @@ import {
   renderSkills,
   renderTimeline,
   renderEvents,
-  sortWorksByDateDesc,
+  sortByDateDesc,
   personJsonLdString,
   WORKS_HOME_LIMIT,
 } from "../src/lib/content-render.js";
@@ -79,6 +79,8 @@ function applyDict(template, dict, locale, page = "index", person = null) {
   flat["page.hreflangEn"] = `${SITE}/${pathEn}`;
   flat["page.langJaActive"] = locale === "ja" ? "true" : "false";
   flat["page.langEnActive"] = locale === "en" ? "true" : "false";
+  flat["page.langJaSelected"] = locale === "ja" ? "selected" : "";
+  flat["page.langEnSelected"] = locale === "en" ? "selected" : "";
   flat["page.homeHref"] = `/index.${locale}`;
   flat["page.worksHref"] = `/works.${locale}`;
   if (person) {
@@ -241,7 +243,7 @@ function runInject(opts = {}) {
   const projectData = validateProjectData();
 
   const { works, links, skills, career, events, person } = projectData;
-  const worksAll = sortWorksByDateDesc(works);
+  const worksAll = sortByDateDesc(works);
   const worksHome = worksAll.slice(0, WORKS_HOME_LIMIT);
 
   const indexSrc = fs.readFileSync(path.join(SRC, "index.html"), "utf8");

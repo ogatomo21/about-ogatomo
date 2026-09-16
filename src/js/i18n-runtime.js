@@ -17,12 +17,12 @@ import {
   renderSkills,
   renderTimeline,
   renderEvents,
-  sortWorksByDateDesc,
+  sortByDateDesc,
   personJsonLdString,
   WORKS_HOME_LIMIT,
 } from "../lib/content-render.js";
 
-const worksSorted = sortWorksByDateDesc(works);
+const worksSorted = sortByDateDesc(works);
 
 export const LANG_KEY = "about-ogatomo-lang";
 export const LANG_OPTS = ["ja", "en"];
@@ -209,11 +209,8 @@ function applyLanguageCore(locale, { updateUrl = true } = {}) {
   const homeLink = document.querySelector("[data-home-link]");
   if (homeLink) homeLink.setAttribute("href", `/index.${locale}`);
 
-  // Lang menu selected state
-  document.querySelectorAll("[data-lang-opt]").forEach((btn) => {
-    const on = btn.getAttribute("data-lang-opt") === locale;
-    btn.setAttribute("aria-selected", on ? "true" : "false");
-    btn.classList.toggle("is-active", on);
+  document.querySelectorAll("[data-lang-select]").forEach((select) => {
+    select.value = locale;
   });
 
   // Keep the originally requested URL on 404 responses; replacing it with
@@ -230,7 +227,7 @@ function applyLanguageCore(locale, { updateUrl = true } = {}) {
 
 /**
  * Apply UI strings + re-render content mounts for `locale`.
- * isSwitch: fade main (or View Transition) then re-init sliders via afterApply.
+ * isSwitch: fade main before applying the new language.
  * @param {string} locale
  * @param {{ updateUrl?: boolean, isSwitch?: boolean }} [opts]
  */
@@ -242,21 +239,6 @@ export async function applyLanguage(locale, opts = {}) {
   const motionOk = isSwitch && !prefersReducedMotion();
 
   const run = () => applyLanguageCore(locale, { updateUrl });
-
-  if (isSwitch && motionOk && typeof document.startViewTransition === "function") {
-    try {
-      const vt = document.startViewTransition(() => {
-        run();
-      });
-      await vt.finished.catch(() => {});
-      if (typeof onAfterApply === "function") {
-        onAfterApply(locale, getDict(locale));
-      }
-      return;
-    } catch {
-      /* fall through to CSS fade */
-    }
-  }
 
   if (motionOk && main) {
     main.classList.add("lang-transition", "lang-transition--out");
@@ -280,7 +262,7 @@ export async function applyLanguage(locale, opts = {}) {
 }
 
 /**
- * Globe button + dropdown (日本語 / English). No full page reload.
+ * Native language select. No full page reload.
  */
 export function initLangMenu({ afterApply } = {}) {
   if (afterApply) onAfterApply = afterApply;
@@ -296,95 +278,13 @@ export function initLangMenu({ afterApply } = {}) {
   setStoredLang(initial);
   applyLanguage(initial, { updateUrl: false, isSwitch: false });
 
-  document.querySelectorAll("[data-lang-menu]").forEach((root) => {
-    const trigger = root.querySelector("[data-lang-trigger]");
-    const panel = root.querySelector("[data-lang-panel]");
-    if (!trigger || !panel) return;
-    const options = [...panel.querySelectorAll("[data-lang-opt]")];
-
-    // CSS handles open/close animation via .is-open (no [hidden] flash)
-    panel.removeAttribute("hidden");
-
-    const close = ({ restoreFocus = false } = {}) => {
-      trigger.setAttribute("aria-expanded", "false");
-      root.classList.remove("is-open");
-      panel.setAttribute("aria-hidden", "true");
-      if (restoreFocus) trigger.focus();
-    };
-
-    const open = () => {
-      trigger.setAttribute("aria-expanded", "true");
-      root.classList.add("is-open");
-      panel.setAttribute("aria-hidden", "false");
-    };
-
-    const isOpen = () => root.classList.contains("is-open");
-
-    const toggle = () => {
-      if (isOpen()) close();
-      else open();
-    };
-
-    const focusSelected = () => {
-      const selected = options.findIndex(
-        (option) => option.getAttribute("aria-selected") === "true"
-      );
-      options[Math.max(0, selected)]?.focus();
-    };
-
-    close();
-
-    trigger.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggle();
-    });
-
-    trigger.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        open();
-        focusSelected();
-      } else if (e.key === "Escape" && isOpen()) {
-        e.preventDefault();
-        close({ restoreFocus: true });
+  document.querySelectorAll("[data-lang-select]").forEach((select) => {
+    select.value = initial;
+    select.addEventListener("change", () => {
+      const locale = select.value;
+      if (LANG_OPTS.includes(locale) && locale !== currentLang) {
+        void applyLanguage(locale, { updateUrl: true, isSwitch: true });
       }
-    });
-
-    options.forEach((btn, index) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const lang = btn.getAttribute("data-lang-opt");
-        if (!LANG_OPTS.includes(lang)) return;
-        close();
-        if (lang === currentLang) return;
-        void applyLanguage(lang, { updateUrl: true, isSwitch: true });
-      });
-
-      btn.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-          e.preventDefault();
-          const delta = e.key === "ArrowDown" ? 1 : -1;
-          options[(index + delta + options.length) % options.length]?.focus();
-        } else if (e.key === "Home" || e.key === "End") {
-          e.preventDefault();
-          options[e.key === "Home" ? 0 : options.length - 1]?.focus();
-        } else if (e.key === "Escape") {
-          e.preventDefault();
-          close({ restoreFocus: true });
-        } else if (e.key === " " || e.key === "Enter") {
-          e.preventDefault();
-          btn.click();
-        }
-      });
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!root.contains(e.target)) close();
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") close();
     });
   });
 }

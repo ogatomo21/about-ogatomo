@@ -29,7 +29,7 @@ const RASTER = new Set([".png", ".jpg", ".jpeg"]);
 const WEBP_Q = 82;
 const AVIF_Q = 55;
 const MAX_WIDTH = 2000;
-const IMAGE_PIPELINE_VERSION = 2;
+const IMAGE_PIPELINE_VERSION = 3;
 const PASSTHROUGH_SOURCES = new Set(["profile-ogp.png"]);
 const PIPELINE_CONFIG = {
   version: IMAGE_PIPELINE_VERSION,
@@ -108,8 +108,9 @@ function targetsFor(file, extension) {
 
 async function writeDerivative(srcFile, destFile, format, width, metadata) {
   ensureDir(destFile);
-  let pipeline = sharp(srcFile, { failOn: "none" });
-  if (metadata.width && metadata.width > width) {
+  let pipeline = sharp(srcFile, { failOn: "none" }).autoOrient();
+  const orientedWidth = [5, 6, 7, 8].includes(metadata.orientation) ? metadata.height : metadata.width;
+  if (orientedWidth && orientedWidth > width) {
     pipeline = pipeline.resize({
       width,
       withoutEnlargement: true,
@@ -244,6 +245,27 @@ export function mergeOptimizedImagesToDist(distDir = path.join(ROOT, "dist")) {
     console.log(`[images] merged ${copied} file(s) into dist/images`);
   }
   return copied;
+}
+
+/** Strip private metadata from deployment copies, including originals and OGP. */
+export async function stripImageMetadataFromDist(distDir = path.join(ROOT, "dist")) {
+  let stripped = 0;
+  for (const file of walk(distDir)) {
+    if (!/\.(png|jpe?g|webp|avif|gif|tiff?)$/i.test(file)) continue;
+    const input = fs.readFileSync(file);
+    const metadata = await sharp(input).metadata();
+    if (!metadata.exif && !metadata.xmp && !metadata.iptc && !metadata.orientation) continue;
+    let pipeline = sharp(input, { animated: true }).autoOrient();
+    // Only deployment copies are re-encoded; keep JPEG quality high and other rasters lossless.
+    if (metadata.format === "jpeg") pipeline = pipeline.jpeg({ quality: 100, chromaSubsampling: "4:4:4" });
+    else if (metadata.format === "webp") pipeline = pipeline.webp({ lossless: true });
+    else if (metadata.format === "heif") pipeline = pipeline.avif({ lossless: true });
+    const output = await pipeline.toBuffer();
+    fs.writeFileSync(file, output);
+    stripped += 1;
+  }
+  console.log(`[images] stripped metadata from ${stripped} deployment image(s)`);
+  return stripped;
 }
 
 /** Resolve a /images/... URL to a file under .tmp/images if present */

@@ -36,6 +36,13 @@ function parseMonthDate(value, compact) {
   return { year: match[1], month: String(month).padStart(2, "0") };
 }
 
+function formatMonthDate(value, locale, compact) {
+  const m = parseMonthDate(value, compact);
+  if (!m) return escapeHtml(value);
+  return new Intl.DateTimeFormat(locale, { year: "numeric", month: "short", timeZone: "UTC" })
+    .format(new Date(Date.UTC(Number(m.year), Number(m.month) - 1)));
+}
+
 export function toDateTime(value) {
   const compact = parseMonthDate(value, true);
   if (compact) return `${compact.year}-${compact.month}`;
@@ -44,29 +51,11 @@ export function toDateTime(value) {
 }
 
 export function formatWorkDate(yyyymm, locale) {
-  const m = parseMonthDate(yyyymm, true);
-  if (!m) return escapeHtml(yyyymm);
-  if (locale === "en") {
-    const months = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-    ];
-    return `${months[Number(m.month) - 1]} ${m.year}`;
-  }
-  return `${m.year}年${m.month}月`;
+  return formatMonthDate(yyyymm, locale, true);
 }
 
 export function formatTimelineDate(date, locale) {
-  const m = parseMonthDate(date, false);
-  if (!m) return escapeHtml(date);
-  if (locale === "en") {
-    const months = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-    ];
-    return `${months[Number(m.month) - 1]} ${m.year}`;
-  }
-  return `${m.year}年${m.month}月`;
+  return formatMonthDate(date, locale, false);
 }
 
 const TYPE_BADGE = {
@@ -86,10 +75,6 @@ const KIND_CLASS = {
 /** Newest first by YYYYMM / sortable date string */
 export function sortByDateDesc(items) {
   return [...items].sort((a, b) => String(b.date).localeCompare(String(a.date)));
-}
-
-export function sortWorksByDateDesc(works) {
-  return sortByDateDesc(works);
 }
 
 export const WORKS_HOME_LIMIT = 10;
@@ -114,10 +99,9 @@ function isRemoteOrDataUrl(src) {
  * - `https://...` / `data:` → as-is
  * - `ringee.jpg` → `/images/works/ringee.jpg`（制作物・イベント共通）
  * - `/images/...` or `./images/...` → そのまま正規化
- * @param {"works"|"events"} [_collection] 呼び出し互換のため残す（未使用）
  */
-function resolveImage(item, _collection = "works") {
-  const raw = item.image || item.imageUrl || "";
+function resolveImage(item) {
+  const raw = item.image || "";
   const src = typeof raw === "string" ? raw.trim() : "";
   if (!src) return DEFAULT_CARD_IMAGE;
   if (isRemoteOrDataUrl(src)) return src;
@@ -205,17 +189,16 @@ function renderSquareMediaCard({
     variant === "grid"
       ? "media-card media-card--grid content-card content-card--hover no-underline text-inherit"
       : "card-slider-item media-card content-card content-card--hover no-underline text-inherit";
-  const roleAttr = variant === "grid" ? ' role="listitem"' : "";
 
   if (href) {
     return `
-<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" class="${shell} content-card--clickable"${roleAttr}>
+<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer" class="${shell} content-card--clickable">
   ${media}
   ${body}
 </a>`.trim();
   }
   return `
-<article class="${shell}"${roleAttr}>
+<article class="${shell}">
   ${media}
   ${body}
 </article>`.trim();
@@ -230,7 +213,7 @@ function renderWorkCard(item, locale, { list = false } = {}) {
 
   return renderSquareMediaCard({
     href: item.url || null,
-    image: resolveImage(item, "works"),
+    image: resolveImage(item),
     badgeClass: badge,
     badgeText: typeLabel,
     timeHtml: formatWorkDate(item.date, locale),
@@ -248,7 +231,7 @@ export function renderWorks(works, locale) {
 
 /** Full works page: square media cards in a grid. */
 export function renderWorksList(works, locale) {
-  return works.map((item) => renderWorkCard(item, locale, { list: true })).join("\n");
+  return works.map((item) => `<li class="min-w-0">${renderWorkCard(item, locale, { list: true })}</li>`).join("\n");
 }
 
 export function renderLinks(links, locale) {
@@ -315,7 +298,7 @@ export function renderEvents(events, locale, dict) {
 
       return renderSquareMediaCard({
         href: item.url || null,
-        image: resolveImage(item, "events"),
+        image: resolveImage(item),
         badgeClass: kindClass,
         badgeText: kindLabel,
         timeHtml: formatTimelineDate(item.date, locale),

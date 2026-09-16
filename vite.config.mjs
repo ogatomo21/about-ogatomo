@@ -6,6 +6,7 @@ import { runInject, getWatchFiles, GENERATED_HTML } from "./scripts/inject-data.
 import {
   runOptimizeImages,
   mergeOptimizedImagesToDist,
+  stripImageMetadataFromDist,
   resolveTmpImage,
 } from "./scripts/optimize-images.mjs";
 
@@ -142,7 +143,7 @@ function injectDataPlugin() {
         next();
       });
     },
-    closeBundle() {
+    async closeBundle() {
       // Vite emits MPA HTML under dist/.tmp/ — move to dist/ root for Pages.
       // Asset URLs are relative to .tmp (../assets/...) → fix to ./assets/...
       const distTmp = path.join(__dirname, "dist", ".tmp");
@@ -177,6 +178,7 @@ function injectDataPlugin() {
       }
       // public/ originals already in dist; add AVIF/WebP from .tmp only
       mergeOptimizedImagesToDist(dist);
+      await stripImageMetadataFromDist(dist);
     },
   };
 }

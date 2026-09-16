@@ -157,7 +157,7 @@ about-ogatomo/
 - 表示: トップはヒーロー通過後 `is-visible`。ヒーロー無しページは常時表示
 - すりガラス: `--glass-*` + 殻 1 枚の `backdrop-filter`。メニューに第 2 ガラス層を付けない
 - **PC（md+）**: ブランド + ナビ + 言語 + テーマ。ハンバーガー非表示
-- **SP**: ブランド + ハンバーガー。開くと殻が下に伸びる（`max-height`）。`border-radius` は SP で **1.5rem 固定**（開閉アニメ禁止）。言語メニュー時のみ `:has(.lang-menu.is-open)` で overflow 解除
+- **SP**: ブランド + ハンバーガー。開くと殻が下に伸びる（`max-height`）。`border-radius` は SP で **1.5rem 固定**（開閉アニメ禁止）。言語切替はネイティブの `<select>` を使う
 
 ### 制作物・イベントのカード UI
 
@@ -177,6 +177,7 @@ about-ogatomo/
 - ビルド成果物: `index.ja.html` / `index.en.html`。公開URLは `/index.ja` / `/index.en`（Cloudflare Pages Clean URL）
 - ルート `index.html` は保存言語・ブラウザー言語に応じてClean URLへリダイレクト
 - `404.html` はリダイレクトしない。Cloudflare Pages が元リクエストURLと404ステータスを保持したまま日本語404を配信し、ページ内切替で英語化する
+- 404テンプレートは `<base href="/">` で相対資産URLをルート基準にする。深い不存在URLでもCSS・JS・faviconを読み込めることを成果物検査で確認する。
 - 切替: リロードなし（`i18n-runtime.js`）。辞書・data・`content-render` をバンドル（辞書二重持ちは意図的）
 - プレースホルダ: `{{key}}` / `{{{raw}}}` + `data-i18n` / `data-i18n-attr`
 
@@ -204,6 +205,7 @@ about-ogatomo/
 | 本番配信 | `dist/images/` = public コピー + `.tmp` マージ |
 
 - ツール: `scripts/optimize-images.mjs` + **sharp**
+- 配信成果物は元形式・OGPも含めてEXIF/XMP/IPTCを除去する。`public/images` のソースは変更せず、`dist` のコピーだけを処理する。向き情報は自動回転で画素に反映してから除去し、派生画像にも自動回転を適用する。JPEGの配信用コピーは品質100で再エンコードする。メタデータ残存は成果物検査でビルドを失敗させる。
 - カード HTML: `<picture>` で AVIF → WebP → 元ファイル `<img>`。モバイルは `-480` と元解像度の密度候補、PCは元解像度派生を使う
 - 実寸より大きい `960w` / `1600w` descriptor は生成しない。OGP画像は元PNGだけを使い派生対象外
 - 外部 `https://` 画像はそのまま `<img>`
@@ -350,3 +352,6 @@ HTML に JSON-LD を直書きしない。`#json-ld-person` に inject / 言語�
 | 2026-08-10 | Cloudflare PagesのGit連携を整備。データ検証、成果物検査、画像派生のレスポンシブ化、アクセシビリティ改善 |
 | 2026-08-10 | 画像派生をSHA-256マニフェストで増分生成。未変更画像の再エンコードを回避 |
 | 2026-08-31 | Cloudflare Pages実設定へ文書を同期。Clean URL・404ステータス維持・CI・セキュリティヘッダー・画像派生重複を改善 |
+| 2026-09-05 | 過剰設計を整理。言語切替をネイティブselectへ簡素化し、未使用のリンクgroup・互換ラッパーを削除。カード自動スクロールは維持。 |
+| 2026-09-08 | 404の資産基準URL、制作物一覧のリンク構造、ダークモードのホバー文字色、スライダーの停止状態を修正。 |
+| 2026-09-08 | 配信用画像のEXIF/XMP/IPTC除去と向き補正を追加。元画像・OGPも対象、ソース画像は維持。 |

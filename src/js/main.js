@@ -62,7 +62,7 @@ function applyThemeCore(theme) {
 
 /**
  * Theme: system / light / dark (persisted).
- * Animates via View Transitions when available, else brief CSS color ease + sliding pill.
+ * Adds a brief CSS color ease + sliding pill.
  */
 function applyTheme(theme, { animate = true } = {}) {
   const run = () => applyThemeCore(theme);
@@ -78,18 +78,6 @@ function applyTheme(theme, { animate = true } = {}) {
   const clear = () => {
     window.setTimeout(() => html.classList.remove("theme-switching"), 40);
   };
-
-  if (typeof document.startViewTransition === "function") {
-    try {
-      const vt = document.startViewTransition(() => {
-        run();
-      });
-      vt.finished.then(clear).catch(clear);
-      return;
-    } catch {
-      /* fall through */
-    }
-  }
 
   run();
   window.setTimeout(clear, 280);
@@ -324,7 +312,7 @@ function destroyCardSliders() {
  * Card sliders for works / events.
  * - Auto-advance every data-interval ms (default 5000)
  * - Manual: prev/next buttons, drag/swipe on track, keyboard when focused
- * - Pauses while hovered / focused / pointer down / tab hidden
+ * - Pauses while hovered / pointer down / tab hidden; focus stops until resumed
  * Safe to call again after language switch (content re-render).
  */
 function initCardSliders() {
@@ -345,8 +333,10 @@ function initCardSliders() {
 
     const intervalMs = Number(root.getAttribute("data-interval")) || 5000;
     let timerId = null;
-    let manualPaused = false;
-    let interactionPaused = false;
+    let manualPaused = root.dataset.sliderPaused === "true";
+    const hoverTarget = section || root;
+    let hovered = hoverTarget.matches(":hover");
+    let pointerActive = false;
     const toggle =
       section?.querySelector(`[data-slider-toggle][aria-controls="${track.id}"]`) ||
       section?.querySelector("[data-slider-toggle]");
@@ -391,24 +381,25 @@ function initCardSliders() {
 
     function startAuto() {
       stopAuto();
-      if (manualPaused || interactionPaused || prefersReducedMotion() || document.hidden) return;
+      if (manualPaused || hovered || pointerActive || prefersReducedMotion() || document.hidden) return;
       if (track.querySelectorAll(".card-slider-item").length < 2) return;
       timerId = window.setInterval(() => {
-        if (!manualPaused && !interactionPaused && !document.hidden) go(1);
+        if (!manualPaused && !hovered && !pointerActive && !document.hidden) go(1);
       }, intervalMs);
     }
 
-    function pauseInteraction() {
-      interactionPaused = true;
+    function onMouseEnter() {
+      hovered = true;
       stopAuto();
     }
 
-    function resumeInteraction() {
-      interactionPaused = false;
+    function onMouseLeave() {
+      hovered = false;
       startAuto();
     }
 
     function updateToggle() {
+      root.dataset.sliderPaused = String(manualPaused);
       if (!toggle) return;
       const hasAutoPlay = track.querySelectorAll(".card-slider-item").length >= 2;
       const unavailable = !hasAutoPlay || motionQuery.matches;
@@ -464,32 +455,34 @@ function initCardSliders() {
     track.addEventListener("keydown", onKey);
 
     // Hover / focus pause (include header controls outside the track root)
-    const hoverTarget = section || root;
-    const onFocusOut = (e) => {
-      if (!hoverTarget.contains(e.relatedTarget)) resumeInteraction();
+    const onFocusIn = (e) => {
+      // Keep the rotation button's action stable when a click first focuses it.
+      if (e.target === toggle) return;
+      manualPaused = true;
+      stopAuto();
+      updateToggle();
     };
-    hoverTarget.addEventListener("mouseenter", pauseInteraction);
-    hoverTarget.addEventListener("mouseleave", resumeInteraction);
-    hoverTarget.addEventListener("focusin", pauseInteraction);
-    hoverTarget.addEventListener("focusout", onFocusOut);
+    hoverTarget.addEventListener("mouseenter", onMouseEnter);
+    hoverTarget.addEventListener("mouseleave", onMouseLeave);
+    hoverTarget.addEventListener("focusin", onFocusIn);
 
     // Touch / pointer drag: pause while interacting, resume after
-    let pointerActive = false;
     const onPointerDown = () => {
       pointerActive = true;
-      pauseInteraction();
+      stopAuto();
     };
     const onPointerUp = () => {
       if (!pointerActive) return;
       pointerActive = false;
-      window.setTimeout(resumeInteraction, 400);
+      startAuto();
     };
     track.addEventListener("pointerdown", onPointerDown, { passive: true });
     window.addEventListener("pointerup", onPointerUp, { passive: true });
+    window.addEventListener("pointercancel", onPointerUp, { passive: true });
 
     const onVis = () => {
       if (document.hidden) stopAuto();
-      else if (!manualPaused && !interactionPaused) startAuto();
+      else startAuto();
     };
     document.addEventListener("visibilitychange", onVis);
 
@@ -504,6 +497,9 @@ function initCardSliders() {
       motionQuery.addListener(onMotionChange);
     }
 
+    if (hoverTarget.contains(document.activeElement) && document.activeElement !== toggle) {
+      manualPaused = true;
+    }
     updateToggle();
     startAuto();
 
@@ -512,12 +508,12 @@ function initCardSliders() {
       prev?.removeEventListener("click", onPrev);
       next?.removeEventListener("click", onNext);
       track.removeEventListener("keydown", onKey);
-      hoverTarget.removeEventListener("mouseenter", pauseInteraction);
-      hoverTarget.removeEventListener("mouseleave", resumeInteraction);
-      hoverTarget.removeEventListener("focusin", pauseInteraction);
-      hoverTarget.removeEventListener("focusout", onFocusOut);
+      hoverTarget.removeEventListener("mouseenter", onMouseEnter);
+      hoverTarget.removeEventListener("mouseleave", onMouseLeave);
+      hoverTarget.removeEventListener("focusin", onFocusIn);
       track.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("pointercancel", onPointerUp);
       document.removeEventListener("visibilitychange", onVis);
       toggle?.removeEventListener("click", toggleManualPause);
       if (typeof motionQuery.removeEventListener === "function") {

@@ -1,4 +1,18 @@
 [
+
+  {
+    "title": {
+      "ja": "簡易スマートホームダッシュボード SMASH",
+      "en": "Simple Smart Home Dashboard SMASH"
+    },
+    "type": "Extension",
+    "date": "202511",
+    "description": {
+      "ja": "温湿度・エアコン・照明・スマートロックを管理できる家庭向けの簡易ダッシュボード",
+      "en": "Simple smart home dashboard for managing temperature, air conditioning, lighting, and smart locks."
+    },
+    "url": "https://github.com/ogatomo21/smash"
+  },
   {
     "title": {
       "ja": "モバイルICOCA 利用履歴CSV出力拡張機能",

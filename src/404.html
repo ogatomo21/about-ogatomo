@@ -2,6 +2,7 @@
 <html lang="{{page.htmlLang}}">
 <head prefix="og: http://ogp.me/ns#">
   <meta charset="UTF-8">
+  <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>{{notFound.title}}</title>
   <meta name="description" content="{{notFound.body}}">
@@ -43,31 +44,10 @@
     </p>
     <div class="flex flex-wrap items-center gap-3">
       <a href="{{page.homeHref}}" class="btn-primary" data-home-link data-i18n="notFound.home">{{notFound.home}}</a>
-      <div class="lang-menu" data-lang-menu>
-        <button
-          type="button"
-          class="lang-menu-trigger"
-          data-lang-trigger
-          aria-expanded="false"
-          aria-haspopup="listbox"
-          data-i18n-attr="aria-label:langSwitch.aria,title:langSwitch.aria"
-          title="{{langSwitch.aria}}"
-          aria-label="{{langSwitch.aria}}"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="lang-menu-icon">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
-            <path d="M3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <ul class="lang-menu-panel" data-lang-panel role="listbox">
-          <li>
-            <button type="button" role="option" class="lang-menu-option" data-lang-opt="ja" data-i18n="langSwitch.ja" aria-selected="{{page.langJaActive}}">{{langSwitch.ja}}</button>
-          </li>
-          <li>
-            <button type="button" role="option" class="lang-menu-option" data-lang-opt="en" data-i18n="langSwitch.en" aria-selected="{{page.langEnActive}}">{{langSwitch.en}}</button>
-          </li>
-        </ul>
-      </div>
+      <select class="lang-select" data-lang-select data-i18n-attr="aria-label:langSwitch.aria" aria-label="{{langSwitch.aria}}">
+        <option value="ja" data-i18n="langSwitch.ja" {{{page.langJaSelected}}}>{{langSwitch.ja}}</option>
+        <option value="en" data-i18n="langSwitch.en" {{{page.langEnSelected}}}>{{langSwitch.en}}</option>
+      </select>
     </div>
   </main>
 

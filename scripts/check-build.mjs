@@ -6,6 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import sharp from "sharp";
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(SCRIPT_DIR, "..");
@@ -47,6 +48,21 @@ const htmlFiles = walkHtml(DIST);
 for (const filePath of htmlFiles) {
   const relative = path.relative(DIST, filePath);
   const html = fs.readFileSync(filePath, "utf8");
+  if (/^404(?:\.(?:ja|en))?\.html$/.test(relative)) {
+    const baseHref = html.match(/<base\s+href="([^"]+)"/)?.[1] || "";
+    const assets = [...html.matchAll(/(?:src|href)="((?:\.\/|\/)(?:assets\/[^"\s]+|favicon\.ico))"/g)];
+    if (assets.length < 3) fail(`${relative} is missing CSS, JavaScript, or favicon references`);
+    for (const requestPath of ["/missing/page", "/missing/deep/"]) {
+      const base = new URL(baseHref, `https://about.ogtm.dev${requestPath}`);
+      for (const [, asset] of assets) {
+        const resolved = new URL(asset, base);
+        const expected = new URL(asset, "https://about.ogtm.dev/");
+        if (resolved.href !== expected.href || !fs.existsSync(path.join(DIST, resolved.pathname.slice(1)))) {
+          fail(`${relative} cannot load ${asset} from ${requestPath}`);
+        }
+      }
+    }
+  }
   for (const forbidden of ["{{", "ogcms", "about.ogatomo.net", "../src/"]) {
     if (html.includes(forbidden)) fail(`${relative} contains forbidden text: ${forbidden}`);
   }
@@ -99,4 +115,12 @@ if (staleImageNames.length > 0) {
   fail(`obsolete oversized image candidates remain: ${staleImageNames.length}`);
 }
 
-console.log(`[check-build] OK · html=${htmlFiles.length}`);
+for (const file of fs.readdirSync(DIST, { recursive: true })) {
+  if (!/\.(png|jpe?g|webp|avif|gif|tiff?)$/i.test(file)) continue;
+  const metadata = await sharp(path.join(DIST, file)).metadata();
+  if (metadata.exif || metadata.xmp || metadata.iptc || metadata.orientation) {
+    fail(`${file} still contains image metadata`);
+  }
+}
+
+console.log(`[check-build] OK · html=${htmlFiles.length} · image metadata stripped`);

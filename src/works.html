@@ -79,31 +79,10 @@
           >{{nav.contact}}</a>
         </nav>
         <div class="header-tools">
-          <div class="lang-menu" data-lang-menu>
-            <button
-              type="button"
-              class="lang-menu-trigger"
-              data-lang-trigger
-              aria-expanded="false"
-              aria-haspopup="listbox"
-              data-i18n-attr="aria-label:langSwitch.aria,title:langSwitch.aria"
-              title="{{langSwitch.aria}}"
-              aria-label="{{langSwitch.aria}}"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="lang-menu-icon">
-                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
-                <path d="M3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9c-2.5-2.5-3.5-5.5-3.5-9s1-6.5 3.5-9z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <ul class="lang-menu-panel" data-lang-panel role="listbox">
-              <li>
-                <button type="button" role="option" class="lang-menu-option" data-lang-opt="ja" data-i18n="langSwitch.ja" aria-selected="{{page.langJaActive}}">{{langSwitch.ja}}</button>
-              </li>
-              <li>
-                <button type="button" role="option" class="lang-menu-option" data-lang-opt="en" data-i18n="langSwitch.en" aria-selected="{{page.langEnActive}}">{{langSwitch.en}}</button>
-              </li>
-            </ul>
-          </div>
+          <select class="lang-select" data-lang-select data-i18n-attr="aria-label:langSwitch.aria" aria-label="{{langSwitch.aria}}">
+            <option value="ja" data-i18n="langSwitch.ja" {{{page.langJaSelected}}}>{{langSwitch.ja}}</option>
+            <option value="en" data-i18n="langSwitch.en" {{{page.langEnSelected}}}>{{langSwitch.en}}</option>
+          </select>
           <div class="theme-switch" role="radiogroup" data-i18n-attr="aria-label:theme.aria" aria-label="{{theme.aria}}">
             <button type="button" class="theme-dot" role="radio" data-theme-opt="system" aria-checked="false" data-i18n-attr="title:theme.system,aria-label:theme.systemAria" title="{{theme.system}}" aria-label="{{theme.systemAria}}">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 20h8M12 16v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -129,7 +108,7 @@
         <h1 id="works-page-heading" class="section-title" data-i18n="works.title">{{works.title}}</h1>
         <p class="section-lead mb-10 sm:mb-12" data-i18n="works.lead">{{works.lead}}</p>
       </div>
-      <div
+      <ul
         id="works-full-list"
         class="works-card-grid"
         role="list"
@@ -137,7 +116,7 @@
         aria-label="{{works.listPageAria}}"
       >
         <!-- inject:works-all -->
-      </div>
+      </ul>
       <div class="section-inner">
         <p class="mt-10 text-center text-sm">
           <a href="https://github.com/ogatomo21?tab=repositories" target="_blank" rel="noopener noreferrer" class="font-medium text-light hover:underline" data-i18n="works.githubMore">
