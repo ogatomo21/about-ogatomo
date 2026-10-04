@@ -67,7 +67,7 @@ test("works grid preserves links inside list items in both languages", () => {
 test("JSON-LD safely escapes script terminators", () => {
   const unsafe = structuredClone(person);
   unsafe.description = { ja: "</script><script>alert(1)</script>", en: "safe" };
-  const json = personJsonLdString(unsafe, "ja", "https://about.ogtm.dev/index.ja");
+  const json = personJsonLdString(unsafe, "ja", "https://ogtm.dev/index.ja");
   assert.doesNotMatch(json, /<\/script>/i);
   assert.ok(json.includes("\\u003c/script\\u003e"));
 });
@@ -80,12 +80,12 @@ test("generated public URLs are extensionless and 404 keeps its response", () =>
   const notFoundJa = fs.readFileSync(path.join(ROOT, ".tmp/404.ja.html"), "utf8");
   const sitemap = fs.readFileSync(path.join(ROOT, "public/sitemap.xml"), "utf8");
 
-  assert.match(indexJa, /rel="canonical" href="https:\/\/about\.ogtm\.dev\/index\.ja"/);
+  assert.match(indexJa, /rel="canonical" href="https:\/\/ogtm\.dev\/index\.ja"/);
   assert.match(worksEn, /href="\/index\.en"/);
   assert.match(worksEn, /<ul\s+id="works-full-list"/);
   assert.match(indexJa, /<select class="lang-select"[^>]*data-lang-select/);
   assert.match(indexJa, /<option value="ja"[^>]*selected/);
-  assert.doesNotMatch(`${indexJa}${worksEn}${sitemap}`, /about\.ogtm\.dev\/(?:index|works|404)\.(?:ja|en)\.html/);
+  assert.doesNotMatch(`${indexJa}${worksEn}${sitemap}`, /ogtm\.dev\/(?:index|works|404)\.(?:ja|en)\.html/);
   assert.equal(notFound, notFoundJa);
   assert.doesNotMatch(notFound, /location\.replace/);
 });

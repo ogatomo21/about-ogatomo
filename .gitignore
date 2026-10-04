@@ -7,3 +7,8 @@ dist/
 .idea/
 .vscode/
 *.local
+
+backups/
+.wrangler/
+.dev.vars*
+.env*

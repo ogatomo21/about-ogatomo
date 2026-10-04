@@ -10,6 +10,7 @@ import {
   resolveTmpImage,
 } from "./scripts/optimize-images.mjs";
 
+import { generateReservedRoutes } from "./scripts/reserved-routes.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TMP = path.resolve(__dirname, ".tmp");
 const PUBLIC_IMAGES = path.resolve(__dirname, "public", "images");
@@ -179,6 +180,7 @@ function injectDataPlugin() {
       // public/ originals already in dist; add AVIF/WebP from .tmp only
       mergeOptimizedImagesToDist(dist);
       await stripImageMetadataFromDist(dist);
+      await generateReservedRoutes(dist);
     },
   };
 }
