@@ -53,10 +53,10 @@ for (const filePath of htmlFiles) {
     const assets = [...html.matchAll(/(?:src|href)="((?:\.\/|\/)(?:assets\/[^"\s]+|favicon\.ico))"/g)];
     if (assets.length < 3) fail(`${relative} is missing CSS, JavaScript, or favicon references`);
     for (const requestPath of ["/missing/page", "/missing/deep/"]) {
-      const base = new URL(baseHref, `https://about.ogtm.dev${requestPath}`);
+      const base = new URL(baseHref, `https://ogtm.dev${requestPath}`);
       for (const [, asset] of assets) {
         const resolved = new URL(asset, base);
-        const expected = new URL(asset, "https://about.ogtm.dev/");
+        const expected = new URL(asset, "https://ogtm.dev/");
         if (resolved.href !== expected.href || !fs.existsSync(path.join(DIST, resolved.pathname.slice(1)))) {
           fail(`${relative} cannot load ${asset} from ${requestPath}`);
         }
@@ -66,7 +66,7 @@ for (const filePath of htmlFiles) {
   for (const forbidden of ["{{", "ogcms", "about.ogatomo.net", "../src/"]) {
     if (html.includes(forbidden)) fail(`${relative} contains forbidden text: ${forbidden}`);
   }
-  if (/about\.ogtm\.dev\/(?:index|works|404)\.(?:ja|en)\.html/.test(html)) {
+  if (/ogtm\.dev\/(?:index|works|404)\.(?:ja|en)\.html/.test(html)) {
     fail(`${relative} contains a non-canonical .html public URL`);
   }
   if (/(?:href|content)="\/?(?:index|works|404)\.(?:ja|en)\.html/.test(html)) {

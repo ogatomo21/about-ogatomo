@@ -1,0 +1,45 @@
+{
+  "name": "about-ogatomo",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-10-01",
+  "vars": {
+    "CF_ACCOUNT_ID": "7deb8908d9fd03e15aa7da3c9afc3f32",
+    "LINKS_DATABASE_ID": "3dc7633d-29ab-4a91-85c5-e3b61951d1d5"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "about-links-production",
+      "database_id": "3dc7633d-29ab-4a91-85c5-e3b61951d1d5",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "analytics_engine_datasets": [
+    {
+      "binding": "LINK_ANALYTICS",
+      "dataset": "about_links_production"
+    }
+  ],
+  "env": {
+    "preview": {
+      "vars": {
+        "CF_ACCOUNT_ID": "7deb8908d9fd03e15aa7da3c9afc3f32",
+        "LINKS_DATABASE_ID": "698accd1-32de-493d-b482-9149842199d8"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "about-links-staging",
+          "database_id": "698accd1-32de-493d-b482-9149842199d8",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "analytics_engine_datasets": [
+        {
+          "binding": "LINK_ANALYTICS",
+          "dataset": "about_links_staging"
+        }
+      ]
+    }
+  }
+}

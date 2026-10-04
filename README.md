@@ -1,6 +1,6 @@
 # about-ogatomo
 
-[about.ogtm.dev](https://about.ogtm.dev) — 小川 智也（Tomoya Ogawa）のポートフォリオサイト。
+[ogtm.dev](https://ogtm.dev) — 小川 智也（Tomoya Ogawa）のポートフォリオサイト。
 
 ## 概要
 
@@ -41,3 +41,7 @@ npm run preview  # ビルド結果の確認
 MIT — Tomoya Ogawa
 
 詳細なエージェント向けドキュメントは [AGENTS.md](./AGENTS.md) を参照。
+
+## 短縮リンク・管理画面
+
+公開ドメインは `https://ogtm.dev`。静的ページを優先してPages Functionsで短縮リンクを解決します。管理画面は非公開リポジトリ `ogatomo21/about-ogatomo-admin` へ分離。運用手順は非公開の管理リポジトリで管理します。

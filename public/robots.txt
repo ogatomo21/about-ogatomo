@@ -3,4 +3,4 @@ Disallow: /LICENSE
 Disallow: /README.md
 Allow: /
 
-Sitemap: https://about.ogtm.dev/sitemap.xml
+Sitemap: https://ogtm.dev/sitemap.xml

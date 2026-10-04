@@ -190,7 +190,7 @@ function applyLanguageCore(locale, { updateUrl = true } = {}) {
       : pageKind === "404"
         ? `/404.${locale}`
         : `/index.${locale}`;
-  const canonical = `https://about.ogtm.dev${path}`;
+  const canonical = `https://ogtm.dev${path}`;
   setMeta('link[rel="canonical"]', "href", canonical);
   setMeta('meta[property="og:url"]', "content", canonical);
 

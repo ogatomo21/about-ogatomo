@@ -11,7 +11,7 @@
 |------|------|
 | 名称 | about-ogatomo |
 | 種別 | 個人プロフィール／ポートフォリオ（静的・多言語） |
-| 公開 URL | https://about.ogtm.dev |
+| 公開 URL | https://ogtm.dev |
 | リポジトリ | https://github.com/ogatomo21/about-ogatomo |
 | デプロイ | Cloudflare Pages（GitHub連携・自動ビルド） |
 | ライセンス | MIT |
@@ -294,12 +294,12 @@ HTML に JSON-LD を直書きしない。`#json-ld-person` に inject / 言語�
 - デプロイ: Cloudflare PagesのGitHub連携・自動ビルド
 - ビルドコマンド: `npm test && npm run build`（未反映コミットでも既存scriptsだけで動く）
 - 出力ディレクトリ: `dist`
-- 公開ドメイン: **https://about.ogtm.dev**
+- 公開ドメイン: **https://ogtm.dev**
 - **`public/CNAME` は使わない・作らない。** Custom DomainはCloudflare側で設定する。
 
 ### Cloudflare Pages
 
-- このサイトは静的 `dist/` のみをPagesで配信する。Pages Functions / Workerランタイムは使わない。
+- このサイトは静的 `dist/` をPagesで配信する。短縮リンクの解決だけPages Functionsで行い、常に静的応答を優先する。
 - CF側ビルド: `npm test && npm run build` / 出力 `dist` / Node 20.9以上。`sharp` はビルド時のみ。
 - `public/_headers` でCSP等のセキュリティヘッダーとハッシュ付きassetsの長期キャッシュを管理する。
 - 公開URLはPagesのClean URLに合わせて拡張子なしとする。生成ファイル名の `.html` は維持する。
@@ -355,3 +355,15 @@ HTML に JSON-LD を直書きしない。`#json-ld-person` に inject / 言語�
 | 2026-09-05 | 過剰設計を整理。言語切替をネイティブselectへ簡素化し、未使用のリンクgroup・互換ラッパーを削除。カード自動スクロールは維持。 |
 | 2026-09-08 | 404の資産基準URL、制作物一覧のリンク構造、ダークモードのホバー文字色、スライダーの停止状態を修正。 |
 | 2026-09-08 | 配信用画像のEXIF/XMP/IPTC除去と向き補正を追加。元画像・OGPも対象、ソース画像は維持。 |
+
+## 2026-10-03 短縮リンク統合方針
+
+公開ドメインはogtm.dev。短縮リンクだけPages Functions + D1 + Analytics Engine。コンテンツは引き続きGitのJSONから静的生成し、実行時CMS読み込みは導入しない。管理画面は非公開のabout-ogatomo-adminへ分離しAccessで保護する。登録・ビルド公開の両方で静的ルートと短縮IDの衝突を確認する。移行・復旧の運用資料は非公開の管理リポジトリで管理する。
+
+## 2026-10-04 短縮リンク管理への限定
+
+管理画面は短縮リンクとアクセス分析だけを扱う。サイト内容は従来どおりローカルで編集する。下書き・画像アップロード・GitHub編集PRは対象外。適用済みmigrationと既存データは保持し、Git操作と本番切り替えは先行しない。
+
+## 2026-10-04 運用資料の配置
+
+リソース設定・移行・バックアップ・復旧の運用資料は非公開の管理リポジトリに保存し、公開ドキュメントへ追加しない。
