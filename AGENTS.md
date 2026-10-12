@@ -175,7 +175,7 @@ about-ogatomo/
 - 辞書: `src/i18n/ja.json` / `en.json`（UI のみ）
 - コンテンツ: `src/data/*` は `string` または `{ "ja", "en" }`
 - ビルド成果物: `index.ja.html` / `index.en.html`。公開URLは `/index.ja` / `/index.en`（Cloudflare Pages Clean URL）
-- ルート `index.html` は保存言語・ブラウザー言語に応じてClean URLへリダイレクト
+- ルート `index.html` は日本語の本文・OGPを静的生成。`/` の初期表示は保存言語→ブラウザー言語の順に適用し、URLは維持。言語変更時だけ `/index.ja`・`/index.en` に更新
 - `404.html` はリダイレクトしない。Cloudflare Pages が元リクエストURLと404ステータスを保持したまま日本語404を配信し、ページ内切替で英語化する
 - 404テンプレートは `<base href="/">` で相対資産URLをルート基準にする。深い不存在URLでもCSS・JS・faviconを読み込めることを成果物検査で確認する。
 - 切替: リロードなし（`i18n-runtime.js`）。辞書・data・`content-render` をバンドル（辞書二重持ちは意図的）
@@ -367,3 +367,7 @@ HTML に JSON-LD を直書きしない。`#json-ld-person` に inject / 言語�
 ## 2026-10-04 運用資料の配置
 
 リソース設定・移行・バックアップ・復旧の運用資料は非公開の管理リポジトリに保存し、公開ドキュメントへ追加しない。
+
+## 2026-10-12 直下URLのトップページ表示
+
+直下URLはリダイレクトせずトップページを表示する。JavaScript無効時・OGP取得時は日本語。言語別URLはURLの言語を優先する。直下表示中のcanonical・og:url・JSON-LDは直下URLを使い、言語変更後は言語別URLを使う。

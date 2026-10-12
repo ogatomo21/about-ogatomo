@@ -89,3 +89,23 @@ test("generated public URLs are extensionless and 404 keeps its response", () =>
   assert.equal(notFound, notFoundJa);
   assert.doesNotMatch(notFound, /location\.replace/);
 });
+
+test("root home includes static content, OGP and root canonical without redirect", () => {
+  runInject();
+  const html = fs.readFileSync(path.join(ROOT, ".tmp/index.html"), "utf8");
+  const indexJa = fs.readFileSync(path.join(ROOT, ".tmp/index.ja.html"), "utf8");
+  const head = html.split("</head>")[0];
+  for (const key of ["description", "og:title", "og:description", "og:image", "og:type", "og:locale", "twitter:card", "twitter:title", "twitter:description", "twitter:image"]) {
+    const tag = indexJa.match(new RegExp('<meta (?:name|property)="' + key + '" content="[^"]+">'))?.[0];
+    assert.ok(tag, key);
+    assert.ok(head.includes(tag), key);
+  }
+  assert.ok(head.includes('<meta property="og:url" content="https://ogtm.dev/">'));
+  assert.ok(head.includes('<link rel="canonical" href="https://ogtm.dev/">'));
+  const jsonLd = JSON.parse(html.match(/id="json-ld-person">([\s\S]*?)<\/script>/)[1]);
+  assert.equal(jsonLd.mainEntityOfPage["@id"], "https://ogtm.dev/");
+  assert.ok(html.includes('id="works-slider-track"'));
+  assert.ok(html.includes('class="media-card'));
+  assert.ok(html.includes('<main'));
+  assert.doesNotMatch(html, /location\.replace|http-equiv="refresh"|Redirecting/);
+});

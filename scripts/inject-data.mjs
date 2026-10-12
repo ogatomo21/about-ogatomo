@@ -1,7 +1,7 @@
 /**
  * Build-time: i18n dictionaries + JSON data → localized HTML (Vite MPA entries).
  * Output (gitignored, not source):
- *   .tmp/index.ja.html, .tmp/index.en.html, .tmp/index.html (lang redirect)
+ *   .tmp/index.ja.html, .tmp/index.en.html, .tmp/index.html (default home)
  *   .tmp/404.ja.html, .tmp/404.en.html, .tmp/404.html
  *
  * Edit src/index.html / src/404.html / src/data / src/i18n — never edit .tmp/.
@@ -56,7 +56,7 @@ function readDict(locale) {
 
 /**
  * Replace {{dot.path}} placeholders.
- * @param {"index"|"works"|"404"} page
+ * @param {"index"|"root"|"works"|"404"} page
  * @param {object|null} person - src/data/person.json (for JSON-LD on index)
  */
 function applyDict(template, dict, locale, page = "index", person = null) {
@@ -64,7 +64,7 @@ function applyDict(template, dict, locale, page = "index", person = null) {
   const flat = flatten(dict);
 
   const publicBase =
-    page === "works" ? `works.${locale}` : page === "404" ? `404.${locale}` : `index.${locale}`;
+    page === "root" ? "" : page === "works" ? `works.${locale}` : page === "404" ? `404.${locale}` : `index.${locale}`;
   const pathJa =
     page === "works" ? "works.ja" : page === "404" ? "404.ja" : "index.ja";
   const pathEn =
@@ -136,71 +136,6 @@ function injectMarkers(template, replacements) {
   return html;
 }
 
-function buildRedirectHtml() {
-  return `<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>about.ogatomo</title>
-  <meta name="theme-color" content="#5068a2" id="meta-theme-color">
-  <link rel="icon" href="./favicon.ico">
-  <link rel="alternate" hreflang="ja" href="${SITE}/index.ja">
-  <link rel="alternate" hreflang="en" href="${SITE}/index.en">
-  <link rel="alternate" hreflang="x-default" href="${SITE}/index.ja">
-  <script>
-    (function () {
-      try {
-        var themeKey = "about-ogatomo-theme";
-        var t = localStorage.getItem(themeKey) || "system";
-        if (t !== "light" && t !== "dark" && t !== "system") t = "system";
-        var dark =
-          t === "dark" ||
-          (t === "system" &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches);
-        document.documentElement.classList.toggle("dark", dark);
-        var meta = document.getElementById("meta-theme-color");
-        if (meta) meta.setAttribute("content", dark ? "#0f1118" : "#5068a2");
-      } catch (e) {}
-      try {
-        var key = "about-ogatomo-lang";
-        var langs = ["ja", "en"];
-        var stored = localStorage.getItem(key);
-        var lang = stored;
-        if (langs.indexOf(lang) < 0) {
-          var nav = (navigator.language || navigator.userLanguage || "ja").toLowerCase();
-          lang = nav.indexOf("ja") === 0 ? "ja" : "en";
-        }
-        var dest = "/index." + lang + (location.search || "") + (location.hash || "");
-        location.replace(dest);
-      } catch (e) {
-        location.replace("/index.ja");
-      }
-    })();
-  </script>
-  <noscript>
-    <meta http-equiv="refresh" content="0;url=/index.ja">
-  </noscript>
-  <style>
-    body { margin: 0; font-family: sans-serif; background: #fff; color: #333; }
-    html.dark body { background: #0f1118; color: #e8eaf0; }
-    .wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; text-align: center; }
-    a { color: #1b68c5; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <p>
-      Redirecting…<br>
-      <a href="/index.ja">日本語</a> ·
-      <a href="/index.en">English</a>
-    </p>
-  </div>
-</body>
-</html>
-`;
-}
-
 function getWatchFiles() {
   const dataFiles = fs
     .readdirSync(DATA)
@@ -252,6 +187,7 @@ function runInject(opts = {}) {
 
   let anyChanged = false;
   let default404Page = "";
+  let defaultIndexPage = "";
   const counts = [];
 
   for (const locale of LOCALES) {
@@ -265,6 +201,9 @@ function runInject(opts = {}) {
     };
 
     let page = injectMarkers(indexSrc, indexReplacements);
+    if (locale === "ja") {
+      defaultIndexPage = applyDict(page, dict, locale, "root", person);
+    }
     page = applyDict(page, dict, locale, "index", person);
     assertResolved(page, `index.${locale}.html`);
     if (writeIfChanged(path.join(OUT, `index.${locale}.html`), page)) {
@@ -290,7 +229,7 @@ function runInject(opts = {}) {
     counts.push(`${locale}: works=${worksAll.length}(home=${worksHome.length})`);
   }
 
-  if (writeIfChanged(path.join(OUT, "index.html"), buildRedirectHtml())) {
+  if (writeIfChanged(path.join(OUT, "index.html"), defaultIndexPage)) {
     anyChanged = true;
   }
   // Cloudflare Pages serves 404.html with the original 404 status and request URL.

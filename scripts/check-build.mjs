@@ -91,6 +91,21 @@ for (const filePath of htmlFiles) {
   }
 }
 
+const indexRoot = fs.readFileSync(path.join(DIST, "index.html"), "utf8");
+for (const tag of [
+  '<link rel="canonical" href="https://ogtm.dev/">',
+  '<meta property="og:url" content="https://ogtm.dev/">',
+  '<meta property="og:image" content="https://ogtm.dev/images/profile-ogp.png">',
+  '<meta name="twitter:card" content="summary_large_image">',
+  '<meta name="twitter:image" content="https://ogtm.dev/images/profile-ogp.png">',
+]) {
+  if (!indexRoot.split("</head>")[0].includes(tag)) fail(`index.html is missing ${tag}`);
+}
+
+if (!indexRoot.includes('id="works-slider-track"') || /location\.replace|http-equiv="refresh"/.test(indexRoot)) {
+  fail("index.html must serve the home content without redirecting");
+}
+
 const indexJa = fs.readFileSync(path.join(DIST, "index.ja.html"), "utf8");
 if (!indexJa.includes("media-card") || !indexJa.includes('id="json-ld-person"')) {
   fail("index.ja.html is missing injected content");

@@ -190,7 +190,8 @@ function applyLanguageCore(locale, { updateUrl = true } = {}) {
       : pageKind === "404"
         ? `/404.${locale}`
         : `/index.${locale}`;
-  const canonical = `https://ogtm.dev${path}`;
+  const canonicalPath = !updateUrl && pageKind === "index" && location.pathname === "/" ? "/" : path;
+  const canonical = `https://ogtm.dev${canonicalPath}`;
   setMeta('link[rel="canonical"]', "href", canonical);
   setMeta('meta[property="og:url"]', "content", canonical);
 
@@ -271,9 +272,11 @@ export function initLangMenu({ afterApply } = {}) {
     document.body?.getAttribute("data-locale") ||
     document.documentElement.lang ||
     "ja";
-  const initial = LANG_OPTS.includes(pageLang) ? pageLang : "ja";
+  const initial = location.pathname === "/"
+    ? getStoredLang() || ((navigator.language || navigator.userLanguage || "ja").toLowerCase().startsWith("ja") ? "ja" : "en")
+    : LANG_OPTS.includes(pageLang) ? pageLang : "ja";
 
-  // Sync labels/meta to page language (content already SSR'd); wire menu
+  // Explicit language URLs use their static locale; only / follows visitor preferences.
   currentLang = initial;
   setStoredLang(initial);
   applyLanguage(initial, { updateUrl: false, isSwitch: false });
